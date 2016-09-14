@@ -1,23 +1,41 @@
-# How to install linux driver for wireless card
+# How to install driver for WLAN card
 
-## lsusb
+I have a WLAN card named TL-WN823N, it does not work properly under linux, I have to install driver manually.
 
-lsusb
+## Step 1: Find out the chip set
+
+Run `lsusb` you can get:
+
+```bash
+$ lsusb
 Bus 003 Device 002: ID 0bda:818b Realtek Semiconductor Corp.
+```
+Google `0bda:818b`, you will know the USB stick bases on the Realtek chip set RTL8192EU.
 
-## Google
-
+```
 Realtek RTL8192EU ID 0BDA:818B
+```
 
-## Download source
+## Step 2: Download source code
 
-git clone https://github.com/Mange/rtl8192eu-linux-driver
+```
+$ git clone https://github.com/Mange/rtl8192eu-linux-driver
+```
 
-## Install kernel source
+## Step 3: Compile and install 
 
-zypper in kernel-devel
+You must install `kernel-devel` for later compilation:
 
-## Install
+```bash
+$ sudo zypper in kernel-devel
+```
+Now compile and install
 
-cd rtl8192eu-linux-driver
-make && make install
+```bash
+$ cd rtl8192eu-linux-driver
+$ sudo make && make install
+```
+
+## Step 4: Caution
+
+After you update the kernel, the driver may not work, remember.

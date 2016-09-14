@@ -2,12 +2,17 @@
 
 ## Step 1: Install shadowsocks
 
-zypper install python-pip
-pip install shadowsocks
+Run the following commands:
 
-## Step 2: Shadowsocks client configuration
+```bash
+$ sudo zypper install python-pip
+$ pip install shadowsocks
+```
+
+## Step 2: Configure shadowsocks client
 
 Create a new file named /etc/shadowsocks/config.json, add the following content:
+
 ```
 {
     "server": "45.78.30.72",
@@ -17,7 +22,12 @@ Create a new file named /etc/shadowsocks/config.json, add the following content:
     "method": "aes-256-cfb"
 }
 ```
-run shadowsocks client in terminal: sslocal -c /etc/shadowsocks/config.json
+
+run shadowsocks client in a terminal:
+
+```bash
+$ sslocal -c /etc/shadowsocks/config.json
+```
 
 ## Step 3: Configure firefox
 
@@ -26,4 +36,4 @@ Add new proxy --> Proxy Details --> Manual Proxy Configuration
 Host or IP Address: 127.0.0.1, Port: 1080
 Select Automatic Proxy Configuration, by PAC, Automatic proxy configuration URL is: https://bstrill.com/proxy.pac
 
-Successfully!!!
+Enjoy fucking GFW :)
