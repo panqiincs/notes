@@ -21,7 +21,7 @@ $ make
 $ sudo make install
 ```
 
-## Step 3: Create a launch for emacs
+## Step 3: Create a launch for emacs (maybe unnecessary)
 
 Create a new file `/usr/share/applications/Emacs-VERSION.desktop` and add the following:
 
