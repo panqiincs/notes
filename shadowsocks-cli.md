@@ -12,7 +12,7 @@ $ sudo zypper install proxychains
 
 ## Step 2: Configure proxychains
 
-Open file `/etc/proxychains.conf`, add the following content at the bottom under [ProxyList]:
+Open file `/etc/proxychains.conf`, add the following content at the bottom under `[ProxyList]`:
 
 ```
 sock5 127.0.0.1 1080
@@ -25,4 +25,6 @@ Just add `proxychains` before your commands, for example:
 ```
 $ proxychains curl https://twitter.com
 ```
+
+Enjoy fucking GFW under CLI :)
 
