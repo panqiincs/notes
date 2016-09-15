@@ -15,11 +15,11 @@ Create a new configuration file named `/etc/shadowsocks/config.json`, add the fo
 
 ```
 {
-    "server": "45.78.30.72",
-    "server_port": 443,
-    "local_port": 1080,
-    "password": "ZTk2Y2RkZD",
-    "method": "aes-256-cfb"
+    "server": "xx.xx.xx.xx",
+    "server_port": xxx,
+    "local_port": xxx,
+    "password": "xxxxxxxx",
+    "method": "xxxxxxxx"
 }
 ```
 
