@@ -66,6 +66,42 @@ fd = open("my file", O_RDWR | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR);
 fd = open("my file", O_WRONLY | O_CREAT | O_TRUNC | O_APPEND, S_IRUSR | S_IWUSR);
 ```
 
+### 4.4 Reading from a File: _read()_
+
+A call to _read()_ may read **less** than the requested number of bytes. For a **regular** file, the probable reason for this is that we were close to the end of the file. When applied to pipes, FIFOs, sockets, or terminals--there are also various circumstances where it may read **fewer** bytes than requested.
+
+### Writing to a File: _write()_
+
+A call to _write()_ may write **less** than the requested number of bytes.
+
+### Closing a file: _close()_
+
+Closes an open file descriptor, freeing it for subsequent reuse by the process. When a process terminates, all its open file descriptors are automatically closed.
+
+### Changing the File Offset: _lseek()_
+
+For each open file, the kernel maintains a _File offset_, which determines the location at which the next _read()_ or _write()_ will occur.
+
+```
+#include <unistd.h>
+
+off_t lseek(int fd, off_t offset, int whence);
+```
+
+_whence_ can be set to `SEEK_SET`,`SEEK_CUR` and `SEEK_END`.
+
+#### File holes
+
+Seek past the end of a file, a call to _read()_ returns 0(EOF), and a call to _write()_ creates a _file hole_. Reading from holes return a buffer of null bytes(0).
+
+File holes does not take up disk space. The file system does not allocate any disk blocks for a hole until, data is written into it later.
+
+### 4.8 Operations Outside the Universal I/O Model: _ioctl()_
+
+A general-purpose mechanism for performing file and device operations that fall outside the universal I/O model.
+
+
+
 
 
 
