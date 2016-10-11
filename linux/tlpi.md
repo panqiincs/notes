@@ -44,6 +44,28 @@ Everything is a file.
 
 ### 4.3 Opening a file: _open()_
 
+```c
+#include <sys/stat.h>
+#include <fcntl.h>
+
+int open(const char *pathname, int flags, .../* mode_t mode */);
+```
+
+* _flag_ argument: specifies the _access mode_ for the file
+* _mode_ argument: specifies the permissions to be placed on the file. If the _open()_ call does not specify `O_CREAT`, _mode_ can be ommited
+
+An example:
+
+```c
+/* Open new or existing file for reading and writing, truncating to zero bytes; 
+   file permissions read+write for owner, nothing for all others */
+fd = open("my file", O_RDWR | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR);
+
+/* Open new or existing file for writing; 
+   writes should always append to end of file */
+fd = open("my file", O_WRONLY | O_CREAT | O_TRUNC | O_APPEND, S_IRUSR | S_IWUSR);
+```
+
 
 
 
