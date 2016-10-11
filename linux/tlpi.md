@@ -33,10 +33,10 @@ Three standard file descriptors: 0(stdin), 1(stdout), 2(stderr). The shell norma
 
 Four key system calls for performing file I/O:
 
-* fd = open(pathname, flags, mode)
-* numread = read(fd, buffer, count)
-* numwritten = write(fd, buffer, count)
-* status = close(fd)
+* `fd = open(pathname, flags, mode)`
+* `numread = read(fd, buffer, count)`
+* `numwritten = write(fd, buffer, count)`
+* `status = close(fd)`
 
 ### 4.2 Universality of I/O
 
