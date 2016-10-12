@@ -1,6 +1,6 @@
 # The Linux Programming Interface
 
-## Preface
+## PREFACE
 
 ### Subject
 
@@ -11,11 +11,12 @@ This book describe the Linux programming interface--the system calls, library fu
 The author is a maintainer of the [__man-pages__](https://www.kernel.org/doc/man-pages/) project.
 
 
-## 1: History and Standards
+## 1: HISTORY AND STANDARDS
 
 Unix, C, POSIX, SUS.
 
-## 2: Fundamental Concepts
+
+## 2: FUNDAMENTAL CONCEPTS
 
 * Kernel
 * Shell
@@ -31,7 +32,8 @@ Unix, C, POSIX, SUS.
 * Threads
 * ...
 
-## 3: System Programming Concepts
+
+## 3: SYSTEM PROGRAMMING CONCEPTS
 
 ### 3.1 System Calls
 
@@ -63,7 +65,8 @@ The _perror()_ and _strerror()_ library functions can print error messages based
 
 ### 3.6 Portability Issues
 
-## 4: File I/O: The Universal I/O Model
+
+## 4: FILE I/O: THE UNIVERSAL I/O MODEL
 
 ### 4.1 Overview
 
@@ -141,7 +144,76 @@ File holes does not take up disk space. The file system does not allocate any di
 A general-purpose mechanism for performing file and device operations that fall outside the universal I/O model.
 
 
+## 5: FILE I/O: FURTHER DETAILS
 
+### 5.1 Atomicity and Race Conditions
 
+All **system calls** are executed atomically.
+
+#### Creating a file exclusively.
+
+Specifying `O_EXCL` in conjunction with `O_CREAT` causes _open()_ to return an error if the file already exists. This provides a way for a process to eusure that it is the creator of a file. An example shows a **race condition** will occur when `O_EXCL` is absent.
+
+#### Appending data to a file
+
+Race condition occurs when multiple processes append data to the same file. Open a file with `O_APPEND` flag guarantees the seek to the next byte past the end of the file and the write operation happen atomically, which can avoid the race condition.
+
+### 5.2 File Control Operations: _fcntl()_
+
+```c
+#include <fcntl.h>
+
+int fcntl(int fd, int cmd, ...);
+```
+
+The third argument to _fcntl()_ can be of different types, or it can be ommited.
+
+### 5.3 Open File Status Flags
+
+You can use _fcntl()_ to retrieve or modify the access mode and open file status flags of an open file.(These are the values set by the _flags_ argument specified in the call to _open()_.)
+
+* To retrieve, specify _cmd_ as `F_GETEL`
+* To modify, firstly retrieve a copy of the existing flags, then modify the bits, and finally specify _cmd_ as `F_SETEL` to update the flags.
+
+### 5.4 Relationship Between File Descriptors and Open Files
+
+This section is **important**.
+
+It is possible--and useful--to have multiple descriptors referring to the same open files. These file descriptors may be open in the same process or different processes.
+
+...see more details in the book, try to understand Figure 5-2.
+
+### 5.5 Duplicating File Descriptors
+
+```c
+#include <unistd.h>
+
+int dup(int oldfd);
+int dup2(int oldfd, int newfd);
+```
+
+### 5.6 File I/O at a Specified Offset: _pread()_ and _pwrite()_
+
+Calling _pread()_ is equivalent to _atomically_ perform _lseek()_ and _read()_ in a right order.
+
+These system calls can be particularly useful in multithreaded applications. Using the two system calls, multiple threads can simultaneously perform I/O on the same file descriptor without being affected by changes made to the file offset by other threads.
+
+### 5.7 Scatter-Gather I/O: _readv()_ and _writev()_
+
+Instead of accepting a single buffer of data to be read or written, these functions transfer multiple buffers of data in a single system call.
+
+### 5.8 Truncating a File: _truncate_ and _ftruncate()_
+
+They set the size of a file to the value specified by _length_.
+
+### 5.9 Nonblocking I/O
+
+Non blocking I/O mode can be used with devices, pipes, FIFOs, and sockets. `O_NONBLOCK` is generally ignored for regular files.
+
+### 5.10 I/O on Large Files
+
+### 5.11 The /dev/fd Directory
+
+### 5.12 Creating Temporary Files
 
 
