@@ -202,7 +202,7 @@ These system calls can be particularly useful in multithreaded applications. Usi
 
 Instead of accepting a single buffer of data to be read or written, these functions transfer multiple buffers of data in a single system call.
 
-### 5.8 Truncating a File: _truncate_ and _ftruncate()_
+### 5.8 Truncating a File: _truncate()_ and _ftruncate()_
 
 They set the size of a file to the value specified by _length_.
 
@@ -215,5 +215,61 @@ Non blocking I/O mode can be used with devices, pipes, FIFOs, and sockets. `O_NO
 ### 5.11 The /dev/fd Directory
 
 ### 5.12 Creating Temporary Files
+
+
+## 6: PROCESSES
+
+### 6.1 Processes and Programs
+
+A _process_ is an instance of an executing program.
+
+A _program_ is a file containing a range of information that describes how to construct a process at run time.
+
+One program may be used to construct many processes, many processes may be running the same program.
+
+### 6.2 Process ID and Parent Process ID
+
+```c
+#include <unistd.h>
+
+pid_t getpid(void);
+pid_t getppid(void);
+```
+
+If a child process becomes orphaned because its "birth" parent terminates, then the child is adopted by the _init_ process.
+
+### 6.3 Memory Layout of a process 
+
+Segments:
+
+* _text segments_ contains machine-language instructions
+* _initialized data segment_ contains global and static variables that are explicitly initialized
+* _uninitialized segments_ contains global and static variables that are not explicitly initialized
+* _stack_ stores function's local variables(so-called automatic variables), arguments, and return value.
+* _heap_ dynamically allocated memory.
+
+Please see Figure 6-1, important.
+
+### 6.4 Virtual Memory Management
+
+The previous discussion talks about the layout in _virtual memory_.
+
+_Virtual memory management_ can make efficient use of both the CPU and RAM(physical memory) by exploiting a property that is typical of most programs: **loclity of reference**: _spatial locality_ and _temporal locality_.
+
+Keywords: pages, page frames, resident set, swap area, page fault, page table, virtual address space...
+
+Very important knowledge, see more details in a OS book.
+
+### 6.5 The Stack and Stack Frames
+
+_Stack pointer_, tracks the current top of the stack. 
+
+The term _user stack_ is used to distinguish the stack from _kernel stack_. The kernel stack is a per-process memory region maintained in kernel memory that is used as the stack for execution of the functions called internally during the execution of a system call.
+
+### 6.6 Command-Line Arguments (_argc_, _argv_)
+
+### 6.7 Environment List
+
+### 6.8 Performing a Nonlocal Goto: _setjmp()_ and _longjmp()_
 
 
