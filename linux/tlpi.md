@@ -248,6 +248,8 @@ Segments:
 * _stack_ stores function's local variables(so-called automatic variables), arguments, and return value.
 * _heap_ dynamically allocated memory.
 
+C program environment on most UNIX implementations provides three global symbols: _etext_, _edate_ and _eend_. The can be used to obtain the addresses of the next byte past, respectively, the end of the program text, the end of the initialized data segment, and the end of the uninitialized data segment. See Figure 6-1.
+
 Please see Figure 6-1, important.
 
 ### 6.4 Virtual Memory Management
@@ -271,5 +273,94 @@ The term _user stack_ is used to distinguish the stack from _kernel stack_. The 
 ### 6.7 Environment List
 
 ### 6.8 Performing a Nonlocal Goto: _setjmp()_ and _longjmp()_
+
+
+## 7: MEMORY ALLOCATION
+
+### 7.1 Allocating Memory on the Heap
+
+The current limit of the heap is referred to as the _program break_(see Figure 6-1). C programs normally use the _malloc_ family functions, these functions are based on _brk()_ and _sbrk()_.
+
+#### 7.1.1 Adjusting the Program Break: _brk()_ and _sbrk()_
+
+Initially, the program break lies just past the end of the uninitialized data segment(the same location as _eend_, see Figure 6-1). After the program break is increased, the program may access any address in the newly allocated area, but no physical memory pages are allocated yet. The kernel automatically allocates new physical pages on the first attempt by the process to access addresses in those pages.
+
+Use the following two system calls for manipulating the program break:
+
+```c
+#include <unistd.h>
+
+int brk(void *end_data_segment);
+
+void *sbrk(intptr_t increment);
+```
+
+The _brk()_ system call sets the program break to the location specified by _end\_data\_segment_. Since virtual memory is allocated in units of pages, _end\_data\_segment_ is effectively rounded up the the next page boundary. Attemps to set the program break below its initial value are likely to result in unexpected behavior, such as segment fault when trying to access data in now nonexistent parts of the initialized or uninitialized data segments.
+
+A call to _sbrk()_ adjusts the program break by adding _increment_ to it. On success, it returns the previous address of the program break.
+
+#### 7.1.2 Allocating Memory on the Heap: _malloc()_ and _free()_
+
+```c
+#include <stdlib.h>
+
+void *malloc(size_t size);
+
+void free(void *ptr);
+```
+
+Although the possibility of failure in allocating memory is small, all calls to _malloc()_, and the related functions that we describe later, should check for the error return. In general, _free()_ does not lower the program break, but instead adds the block of memory to a list of free blocks that are recycled by future calls to _malloc()_ for several reasons:
+
+* The block memory being freed is typically somewhere in the middle of the heap, rather than at the end, so that lowering the program break is not possible.
+* It minimizes the number of _sbrk()_ calls that the program must perform.
+* In may cases, lowering the break would not help programs that allocate large amount of memory, since they typically tend to hold on to allocated memory or repeatedly release and reallocate memory, rather than release it all and then continue to run for an extended period of time.
+
+Making any use of _ptr_ after the call to _free()_--for example, passing it to _free()_ a second time--is an error that can lead to unpredictable results.
+
+#### 7.1.3 Implementation of _malloc()_ and _free()_
+
+**Important!**Write your own version for _malloc()_ and _free()_(Exercise 7-2).
+
+To avoid errors, observe the following rules:
+
+* After we allocate a block of memory, we should be careful not to touch any bytes **outside** the range of that block.
+* It is an error to free the same piece of allocated memory **more than once**.
+* Never call _free()_ with a pointer value that wasn't obtained by a call to one of the functions in the _malloc_ package.
+* If we are writing a **long-running** program that repeatedly allocates memory for various purposes, we should ensure that we deallocate any memory after we have finished using it.
+
+Tools and libraries for _malloc_ debugging:
+
+* _mtrace()_ and _muntrace()_
+* _mcheck()_ and _mprobe()_
+* The `MALLOC_CHECK_` environment variable
+
+Controlling and monitoring the _malloc_ package: _mallopt()_, _mallinfo()_.
+
+#### 7.1.4 Other Methods of Allocating Memory on the Heap
+
+```c
+#include <stdlib.h>
+
+void *calloc(size_t numitems, size_t size);
+void *realloc(size_t numitems, size_t size);
+```
+
+The _calloc()_ function allocates memory for an array of identical items. The _numitems_ argument specifies how many items to allocate, and _size_ specifies their size. After allocating a block of memory of appropriate size, _calloc()_ returns a pointer to the start of the block(or NULL if failed), _calloc()_ initializes the allocated memory to 0.
+
+The _realloc()_ function is used to resize(usually enlarge) a block of memory previously allocated by one of the functions in the _malloc_ package. The _ptr_ argument is a pointer to the block of memory that is to be resized. The _size_ argument specifies the desired new size of the block. On success _realloc()_ returns a pointer to the location of the resized block. This may be different from its location from its location before the call. On error, _realloc()_ returns NULL and leave the block pointed to by _ptr_ untouched.
+
+Memory allocated using _calloc()_ or _realloc()_ should be deallocated with _free()_.
+
+Allocating aligned memory: _memalign()_ and _posix\_memalign()_. They are designed to allocate memory starting at an address aligned at a specified power-of-two boundary.
+
+### 7-2 Allocating Memory on the Stack: _alloca()_
+
+The _alloca()_ function obtains memory from stack by increasing the size of the stack frame. This is possible because the calling function is the one whose stack frame is, by definition, on the top of the stack. Therefore, there is space above the frame for expansion, which can be accomplished by simply modifying the value of the stack pointer.
+
+We must not call _free()_ to deallocate memory allocated with _alloca()_. Likewise, it is not possible to use _realloc()_ to resize a block of memory allocated by _alloca()_.
+
+We can't use _alloca()_ within a function argument list. Because the stack space allocted by _alloca()_ would appear in the middle of the space.
+
+Advantages over _malloc()_: faster, because it is implemented by the compiler as inline code that directly adjusts the stack pointer; the memory is automatically freed when the stack frame is removed, that is, when the function that called _alloca()_ returns.
 
 
