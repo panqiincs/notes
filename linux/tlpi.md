@@ -364,3 +364,62 @@ We can't use _alloca()_ within a function argument list. Because the stack space
 Advantages over _malloc()_: faster, because it is implemented by the compiler as inline code that directly adjusts the stack pointer; the memory is automatically freed when the stack frame is removed, that is, when the function that called _alloca()_ returns.
 
 
+## 8: USERS AND GROUPS
+
+Every user has a unique login name and an associated numeric user identifier(UID). Users can belong to one or more groups. Each group also has a unique name and a group identifier(GID).
+
+The primary purpose of user and group IDs is to determine ownership of various system resources and to control the permissions granted to processes accessing those resourses.
+
+### 8.1 The Password File: /etc/passwd
+
+### 8.2 The Shadow Password File: /etc/shadow
+
+### 8.3 The Group File: /etc/group
+
+### 8.4 Retrieving User and Group Information
+
+#### Retrieving records from the password file
+
+```c
+#include <pwd.h>
+
+struct passwd *getpwnam(const char *name);
+struct passwd *getpwuid(uid_t uid);
+
+struct password {
+    char *pw_name;        /* Login name (username) */
+    char *pw_password;    /* Encrypted password */
+    uid_t pw_uid;         /* User ID */
+    gid_t pw_gid;         /* Group ID */
+    char *pw_gecos;       /* Comment (user information) */
+    char *pw_dir;         /* Initial working (home) directory */
+    char *pw_shell;       /* Login shell */
+}
+```
+
+#### Retrieving records from the group file
+
+```c
+#include <grp.h>
+
+struct passwd *getgrnam(const char *name);
+struct passwd *getgrgid(gid_t gid);
+
+struct password {
+    char  *gr_name;        /* Group name */
+    char  *gr_passwd;      /* Encrypted password (if not password shadowing) */
+    gid_t  gr_gid;         /* Group ID */
+    char **gr_mem;         /* NULL-terminated array of pointers to names
+                              of members listed in /etc/group */
+}
+```
+
+#### Scanning all records in the password and group files
+
+#### Retrieving records from the shadow password file
+
+### 8.5 Password Encryption and User Authentication
+
+For security reasons, UNIX systems encrypt passwords using a _one-way encryption_ algorithm, which means that there is no method of re-creating the original password from its encrypted form. Therefore the only way of validating a candidate password is to encrypt it using the name method and see if the encrypted result matches the value stored in `/etc/shadow`.
+
+
