@@ -423,3 +423,43 @@ struct group {
 For security reasons, UNIX systems encrypt passwords using a _one-way encryption_ algorithm, which means that there is no method of re-creating the original password from its encrypted form. Therefore the only way of validating a candidate password is to encrypt it using the name method and see if the encrypted result matches the value stored in `/etc/shadow`.
 
 
+## 9: PROCESS CREDENTIALS
+
+### 9.1 Real User ID and Real Group ID
+
+The real user ID and group ID identifies the user and group to which the process belongs. As part of the login process, a login shell gets its real user and group IDs from the third and fourth fields of the user's password record in the `/etc/passwd` file. When a new process is created, it inherits these identifiers from its parent.
+
+### 9.2 Effective User ID and Effective Group ID
+
+On most UNIX implementations, the effective user ID and group ID, in conjunction with the supplementary group IDS, are used to determine the permissions granted to a process when it tries to perform various operations.
+
+A process with effective user ID 0 (the user ID of root) has all of the privileges of the superuser. Such a process is referred to as a _privileged process_. Certain system calls can be executed only by privileged processes.
+
+Normally, the effective user and group IDs has the same values as the corresponding real IDs. Through the execution of set-user-ID and set-group-ID programs, they can be different.
+
+### 9.3 Set-User-ID and Set-Group-ID Programs
+
+A set-user-ID program allows a process to gain privileges it would not normally have, by setting the process's effective user ID to the same value as the user ID (owner) of the executable file. A set-group-ID program performs the analogous task for the process's effective group ID.
+
+An executable file has two special permission bits: the set-user-ID and set-group-ID bits. (In fact, every file has these two permission bits, but it is their use with executable files that interests us here.) These permission bit are set using the _chmod_ command.
+
+When the set-user-ID and set-group-ID bits are set, then the _x_ that is normally used to indicate that execute permission is set is replaced by an _s_.
+
+Examples of commonly used set-user-ID programs on Linux include: _passwd(1)_, _mount(8)_, _umount(8)_ and so on.
+
+### 9.4 Saved Set-User-ID and Saved Set-Group-ID
+
+They allow programs to temporarily drop and then later reassume privileges.
+
+### 9.5 File-System User ID and File-System Group ID
+
+They are used for determining permissions for accessing files, while the effective IDs are used for other permission checks.
+
+### 9.6 Supplementary Group IDs
+
+A futher set of groups of which the process is considered to be a member for the purpose of permission checking.
+
+### 9.7 Retrieving and Modifying Process Credentials
+
+A lot of details, skip.
+
