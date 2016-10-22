@@ -555,5 +555,37 @@ The C programming language standards and SUSv3 provides two principal avenues fo
 ### 11.5 System Options
 
 
+## 12: SYSTEM AND PROCESS INFORMATION
+
+### 12.1 The /proc File System
+
+In order to provide easier access to kernel information, many modern UNIX implementations provide a `/proc` virtual file system. This file system resides under the `/proc` directory and contains various files that expose kernel information, allowing processes to conveniently read that information, and change it in some cases, using normal file I/O system calls. The `/proc` file system is said to be virtual because the files and subdirectories that it contains don't reside on a disk. Instead, the kernel creates them "on the fly" as process access them.
+
+#### 12.1.1 Obtaining Information About a Process: /proc/_PID_
+
+For each process on the system, the kernel provides a corresponding directory named `/proc/_PID_`, where _PID_ is the ID of the process.
+
+##### The /proc/_PID_/fd direcotry
+
+##### Threads: the /proc/_PID_/task directory
+
+#### 12.1.2 System Information Under /proc
+
+Various files and subdirectories under `/proc` provides access to system-wide information.
+
+#### 12.1.3 Accessing /proc Files
+
+### 12.2 System Indentification: _uname()_
+
+The _uname()_ system call returns a range of identifying information about the host system on which an application is running, in the structure pointed to by _utsbuf_.
+
+``` c
+#include <sys/utsname.h>
+
+int uname(struct utsname *ustbuf);
+```
+
+
+
 
 
