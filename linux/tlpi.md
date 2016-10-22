@@ -536,3 +536,24 @@ Process time is the amount of CPU time used by a process since it was created. F
 
 When run a program from the shell, we can use the _time(1)_ command to obtain both process time values, as well as the real time required to run the program.
 
+
+## 11: SYSTEM LIMITS AND OPTIONS
+
+The C programming language standards and SUSv3 provides two principal avenues for an application to obtain system limits information:
+
+* Some limits and options can be determined at compile time.
+* Other limits and options may vary at run time. SUSv3 defines three functions--_sysconf()_, _pathconf()_, and _fpathconf()_--that an application can call to check these implementation limits and options.
+
+### 11.1 System Limits
+
+### 11.2 Retrieving System Limits (and Options) at Run Time
+
+### 11.3 Retrieving File-Related Limits (and Options) at Run Time
+
+### 11.4 Indeterminate Limits
+
+### 11.5 System Options
+
+
+
+
