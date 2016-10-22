@@ -87,7 +87,7 @@ Everything is a file.
 
 ### 4.3 Opening a file: _open()_
 
-```c
+``` c
 #include <sys/stat.h>
 #include <fcntl.h>
 
@@ -99,7 +99,7 @@ int open(const char *pathname, int flags, .../* mode_t mode */);
 
 An example:
 
-```c
+``` c
 /* Open new or existing file for reading and writing, truncating to zero bytes; 
    file permissions read+write for owner, nothing for all others */
 fd = open("my file", O_RDWR | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR);
@@ -125,7 +125,7 @@ Closes an open file descriptor, freeing it for subsequent reuse by the process. 
 
 For each open file, the kernel maintains a _File offset_, which determines the location at which the next _read()_ or _write()_ will occur.
 
-```
+``` c
 #include <unistd.h>
 
 off_t lseek(int fd, off_t offset, int whence);
@@ -160,7 +160,7 @@ Race condition occurs when multiple processes append data to the same file. Open
 
 ### 5.2 File Control Operations: _fcntl()_
 
-```c
+``` c
 #include <fcntl.h>
 
 int fcntl(int fd, int cmd, ...);
@@ -185,7 +185,7 @@ It is possible--and useful--to have multiple descriptors referring to the same o
 
 ### 5.5 Duplicating File Descriptors
 
-```c
+``` c
 #include <unistd.h>
 
 int dup(int oldfd);
@@ -229,7 +229,7 @@ One program may be used to construct many processes, many processes may be runni
 
 ### 6.2 Process ID and Parent Process ID
 
-```c
+``` c
 #include <unistd.h>
 
 pid_t getpid(void);
@@ -287,7 +287,7 @@ Initially, the program break lies just past the end of the uninitialized data se
 
 Use the following two system calls for manipulating the program break:
 
-```c
+``` c
 #include <unistd.h>
 
 int brk(void *end_data_segment);
@@ -301,7 +301,7 @@ A call to _sbrk()_ adjusts the program break by adding _increment_ to it. On suc
 
 #### 7.1.2 Allocating Memory on the Heap: _malloc()_ and _free()_
 
-```c
+``` c
 #include <stdlib.h>
 
 void *malloc(size_t size);
@@ -338,7 +338,7 @@ Controlling and monitoring the _malloc_ package: _mallopt()_, _mallinfo()_.
 
 #### 7.1.4 Other Methods of Allocating Memory on the Heap
 
-```c
+``` c
 #include <stdlib.h>
 
 void *calloc(size_t numitems, size_t size);
@@ -380,7 +380,7 @@ The primary purpose of user and group IDs is to determine ownership of various s
 
 #### Retrieving records from the password file
 
-```c
+``` c
 #include <pwd.h>
 
 struct passwd *getpwnam(const char *name);
@@ -394,12 +394,12 @@ struct passwd {
     char *pw_gecos;       /* Comment (user information) */
     char *pw_dir;         /* Initial working (home) directory */
     char *pw_shell;       /* Login shell */
-}
+};
 ```
 
 #### Retrieving records from the group file
 
-```c
+``` c
 #include <grp.h>
 
 struct passwd *getgrnam(const char *name);
@@ -411,7 +411,7 @@ struct group {
     gid_t  gr_gid;         /* Group ID */
     char **gr_mem;         /* NULL-terminated array of pointers to names
                               of members listed in /etc/group */
-}
+};
 ```
 
 #### Scanning all records in the password and group files
@@ -462,4 +462,77 @@ A futher set of groups of which the process is considered to be a member for the
 ### 9.7 Retrieving and Modifying Process Credentials
 
 A lot of details, skip.
+
+
+## 10: TIME
+
+Within a program, we may be interested in two kinds of time:
+
+* _Real time_: This is the time as measured either from some standard point(_calendar_ time) or from some fixed point (typically the start) in the life of a process(_elasped_ or _wall clock_ time). Measuring elapsed time is useful for a program that takes periodic actions or makes regular measurement from some external input device.
+
+* _Process time_: This is the amount of CPU time used by a process. Measuring process time is useful for checking or optimizing the performance of a program or algorithm.
+
+### 10.1 Calendar Time
+
+UNIX systems represent time internally as a measure of seconds since the Epoch, that is since midnight on the morning of 1 January 1970, Universal Coordinated Time. This is approximately the date when the UNIX system came into being. Calendar time is stored in variables of type _time\_t_.
+
+``` c
+#include <sys/time.h>
+
+int gettimeofday(struct timeval *tv, struct timezone *tz);
+
+struct timeval {
+    time_t      tv_sec;   /* Seconds since 00:00:00, 1 Jan 1970 UTC */
+    suseconds_t tv_usec;  /* Additional microseconds (long it) */
+};
+```
+The _gettimeofday()_ system call returns the calendar time in the buffer pointed by _tv_. The _tz_ argument is now obsolete and should always be specified as NULL.
+
+``` c
+#include <time.h>
+
+time_t time(time_t *timep);
+```
+
+The _time()_ system call returns the number of seconds since the Epoch. If the _timep_ argument is not NULL, the number of seconds since the Epoch is also placed in the location to which _timep_ points. We often simply use the following call:
+
+``` c
+t = time(NULL);
+```
+
+### 10.2 Time-Convention Functions
+
+There are a lot of functions used to convert between _time\_t_ values and other time formats, including printable representations. These functions shield us from the complexity brought to such conversions by timezones, daylight saving time(DST) regimes, and localization issues.
+
+#### 10.2.1 Converting time_t to Printable Form
+
+#### 10.2.2 Converting Between time_t and Broken-Down Time
+
+#### 10.2.3 Converting Between Broken-Down Time and Printable Form
+
+### 10.3 Timezones
+
+Deal with different timezones.
+
+### 10.4 Locales
+
+Deal with different languages and different conventions for display information.
+
+### 10.5 Updating the System Clock
+
+Sets the system's calendar time.
+
+### 10.6 The software Clock (Jiffies)
+
+The accuracy of various time-related system calls described in this book is limited to the resolution of the system _software clock_, which measures time in units called _jiffies_. The size of a jiffy is defined by the constant HZ within the kernel source code. This the unit in which the kernel allocates the CPU to processes under the roundrobin time-sharing scheduling algorithm.
+
+### 10.7 Process Time
+
+Process time is the amount of CPU time used by a process since it was created. For recording purposes, the kernel separates CPU time into the following two components: 
+
+* _User CPU Time_ is the amount of time spent executing in user mode. This is the time that it appears to the program that it has access to the CPU.
+
+* _System CPU time_ is the amount of time spent executing in kernel mode. This is the time that the kernel spends executing system calls or performing other tasks on behalf of the program(e.g, servicing page faults).
+
+When run a program from the shell, we can use the _time(1)_ command to obtain both process time values, as well as the real time required to run the program.
 
