@@ -386,7 +386,7 @@ The primary purpose of user and group IDs is to determine ownership of various s
 struct passwd *getpwnam(const char *name);
 struct passwd *getpwuid(uid_t uid);
 
-struct password {
+struct passwd {
     char *pw_name;        /* Login name (username) */
     char *pw_password;    /* Encrypted password */
     uid_t pw_uid;         /* User ID */
@@ -405,7 +405,7 @@ struct password {
 struct passwd *getgrnam(const char *name);
 struct passwd *getgrgid(gid_t gid);
 
-struct password {
+struct group {
     char  *gr_name;        /* Group name */
     char  *gr_passwd;      /* Encrypted password (if not password shadowing) */
     gid_t  gr_gid;         /* Group ID */
