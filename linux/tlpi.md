@@ -586,6 +586,164 @@ int uname(struct utsname *ustbuf);
 ```
 
 
+## 13: FILE I/O BUFFERING
 
+### 13.1 Kernel Buffering of File I/O: The Buffer Cache
 
+When working with disk files, the _read()_ and _write()_ system calls don't directly initiate disk access. Instead, they simply copy data between a user-space buffer and a buffer in the kernel _buffer_ cache. Please see the examples in the book.
+
+The aim of this design is to allow _read()_ and _write()_ to be fast, since they don't need to wait on a (slow) disk operation. This design is also efficient, since it reduces the number of disk transfer that the kernel must perform.
+
+#### Effect of buffer size on I/O system call performance
+
+The kernel performs the same number of disk accesses, regardless of whether we perform 1000 writes of a single byte or a single write of a 1000 bytes. However, the latter is preferable, since it requires a single system call, while the former requires 1000. And system calls are expensive.
+
+If we are transferring a large amount of data to or from a file, then by buffering data in large blocks, and thus performing fewer system calls, we can greatly improve I/O performance.
+
+### 13.2 Buffering in the _stdio_ Library
+
+Buffering of data into large blocks to reduce system calls is exactly what is done by the C library I/O functions(e.g., _fprintf()_, _fscanf()_, _fgets()_, _fputs()_, _fputc()_, _fgetc()_) when operating on disk files. Thus, using the _stdio_ library relieves us of task of buffering data for output with _write()_ or input via _read()_.
+
+#### Setting the buffering mode of a _stdio_ stream
+
+The _setvbuf()_ function controls the form of buffering employed by the _stdio_ library.
+
+``` c
+#include <stdio.h>
+
+int setvbuf(FILE *stream, char *buf, int mode, size_t size);
+```
+
+The _stream_ argument identifies the file stream whose buffering is to be modified. After the stream has been opened, the _setvbuf()_ call must be made before calling any other _stdio_ function on the stream. The _setvbuf()_ call affects the behaviour of all subsequent _stdio_ operations on the specified stream.
+
+The _buf_ and _size_ argument specify the buffer to be used for _stream_. These arguments may be specified in two ways:
+
+* If _buf_ is non-NULL, then it points to a block of memory of _size_ bytes that is to be used as the buffer for _stream_. It should be either statically allocated of dynamically allocated on the heap.
+* If _buf_ is NULL, then the _stdio_ library automatically allocates a buffer for use with _stream_.
+
+The _mode_ argument specifies the type of buffering and has one of the following values:
+
+* \_IONBF    Don't buffer I/O. Each _stdio_ library call results in an immediate _write()_ or _read()_ system call. The _buf_ and _size_ arguments are ignored, and can be specified as NULL or 0, respectively. This is the default for _stderr_, so that the error output is guaranteed to appear immediately.
+
+* \_IOLBF    Employ line-buffered I/O. This flag is the default for stream refering to terminal devices. For output streams, data is buffered until a newline charactor is output (unless the buffer fills first). For input streams, data is read a line at a time.
+
+* \_IOFBF    Emply fully buffered I/O. Data is read or written (via calls to _read()_ or _write()_) in units equal to the size of the buffer. This is the default for streams referring to disk files. 
+
+#### Flushing a _stdio_ buffer
+
+Regardless of the current buffering mode, at any time, we can force the dat in a _stdio_ output stream to be written using the _fflush()_ library function.
+
+``` c
+#include <stdio.h>
+
+int fflush(FILE *stream);
+```
+
+If stream is NULL, _fflush()_ flushes all _stdio_ buffers. 
+
+The _fflush()_ function can also be applied to an input stream. This causes any buffered input to be discarded.(The buffer will be refilled when the program next tries to read from the stream.)
+
+A _stdio_ buffer is automacically flushed when the corresponding stream is closed.
+
+### 13.3 Controlling Kernel Buffering of File I/O
+
+It is possible to force flushing of kernel buffers for output files. Sometimes, this is necessary if an application must ensure that output really has been written to the disk before continuing.
+
+#### Synchronized I/O data integrity and sychronized I/O file integrity
+
+The difference between them involves the _metadata_ describing the file, which the kernel stores along with the data for a file.
+
+_Synchronized I/O data integrity_, this is concerned with ensuring that a file data update transfers sufficient information to allow a later retrieval of that data to proceed.
+
+_Synchronized I/O file integrity_, the difference with this mode of I/O completion is that during a file udpate, _all_ updated file metadata is transferred to disk, even if it is not necessary for the operation of a subsequent read of the file data.
+
+#### System calls for controlling kernel buffering of file I/O
+
+The _fsync()_ system call causes the buffered data and all metadata associated with the open file descriptor _fd_ to be flushed to disk. Calling _fsync()_ forces the file to the synchronized I/O file integrity completion state.
+
+``` c
+#include <unistd.h>
+
+int fsync(int fd);
+```
+
+An _fsync()_ call returns only after the transfer to the disk device has completed.
+
+The _fdatasync()_ system call operates similarly to _fsync()_, but only forces the file to the synchronized I/O data integrity completion state.
+
+``` c
+#include <unistd.h>
+
+int fdatasync(int fd);
+```
+
+The _fdatasync()_ system call reduces the number of disk I/O operations than _fsync()_, because changes to file metadata attributes such as the last modification timestamp don't need to be transferred for synchronized I/O data completion. This make a considerable performance difference for applications that are making multiple file updates: because the file data and meta data normally reside on different parts of the disk, updating them both would require repeated seek operations backward and forward across the disk.
+
+The _sync()_ system call causes all kernel buffers containing updated file information(i.e., data blocks, pointer blocks, metadata, and son on) to be flushed to disk.
+
+``` c
+#include <unistd.h>
+
+void sync(void);
+```
+
+#### Making all writes synchronous: O_SYNC
+
+Specifying the `O\_SYNC` flag when calling _open()_ makes all subsequent output _synchronous_:
+
+``` c
+fd = open(pathname, O_WRONLY | O_SYNC);
+```
+
+After this _open_ call, every _write()_ to the file automacically flushes the file data and metadata to the disk (according to the synchronized I/O file integrity completion).
+
+#### Performance impact of O_SYNC
+
+Using the `_O\_SYNC_` flag (or making frequent calls to _fsync()_, _fdatasync()_, or _sync()_) can strongly affect performance.
+
+#### The O_DSYNC and O_RSYNC flags
+
+The `O\_DSYNC` flag causes writes to be performed according to the requirements of synchronized I/O data integrity completion(like _fdatasync()_). This contrasts with `O\_SYNC`, which causes writes to be performed according to the requirements of synchronized I/O file integrity completion(like _fsync()_)
+
+The `O\_RSYNC` flag is specified in conjunction with either `O\_SYNC` or `O\_DSYNC`, and extends the write behaviors of these flags to read operations.
+
+### 13.4 Summary of I/O Buffering
+
+The transfer of user data by the _stdio_ library functions to the _stdio_ buffer, which is maintained in user memory space. When this buffer is filled, the _stdio_ library invokes the _write()_ system call, which transfers the data into the kernel buffer cache(maintained in kernel memory). Eventually, the kernel initiates a disk operation to transfer the data to the disk.
+
+### 13.5 Advising the Kernel About I/O Patterns
+
+The _posix\_fadvise()_ system call allows a process to inform the kernel about its likely pattern for accessing file data. The kernel may use this information to optimize the use of the buffer cache, thus improvint I/O performance.
+
+### 13.6 Bypassing the Buffer Cache: Direct I/O
+
+Starting with kernel 2.4, Linux allows an application to bypass the buffer cache when performing disk I/O, thus transferring data directly from user space to a file or disk device. This is sometimes termed _direct I/O_ or _raw I/O_.
+
+For most applications, using direct I/O can considerably degrade performance. This is because the kernel applies a number of optimization to improve the performance of I/O done via the buffer cache. All of these optimizations are lost when we use direct I/O. Direct I/O is intended only for applications with specialized I/O requirements.
+
+We can perform direct I/O either on an individual file or on a block device. To do this, we specify the `O\_DIRECT` flag when opening the file or device with _open()_.
+
+#### Alignment restrictions for direct I/O
+
+Restrictions, related to block size.
+
+### 13.7 Mixing Library Functions and System Calls for File I/O
+
+It is possible to mix the use of system calls and the standard C library functions to perform I/O on the same file. The _fileno()_ and _fdopen()_ functions assist us with this task.
+
+``` c
+#include <stdio.h>
+
+int fileno(FILE *stream);
+
+FILE *fdopen(int fd, const char *mode);
+```
+
+Given a stream, _fileno()_ returns the corresponding file descriptor. This file descriptor can then be used in the usual way with I/O system calls such as _read()_, _write()_, _dup()_, and _fcntl()_.
+
+The _fdopen()_ function is the converse of _fileno()_. Given a file descriptor, it creates a corresponding stream that uses this descriptor for its I/O.
+
+The _fdopen()_ function is especially useful for descriptors referring to files other than regular files. E.g., sockets and pipes.
+
+When using the _stdio_ library functions in conjunction with I/O system calls to perform I/O on disk files, we must keep buffering issues in mind.
 
