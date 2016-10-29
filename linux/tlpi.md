@@ -689,7 +689,7 @@ void sync(void);
 
 #### Making all writes synchronous: O_SYNC
 
-Specifying the `O\_SYNC` flag when calling _open()_ makes all subsequent output _synchronous_:
+Specifying the `O_SYNC` flag when calling _open()_ makes all subsequent output _synchronous_:
 
 ``` c
 fd = open(pathname, O_WRONLY | O_SYNC);
@@ -699,13 +699,13 @@ After this _open_ call, every _write()_ to the file automacically flushes the fi
 
 #### Performance impact of O_SYNC
 
-Using the `_O\_SYNC_` flag (or making frequent calls to _fsync()_, _fdatasync()_, or _sync()_) can strongly affect performance.
+Using the `O_SYNC` flag (or making frequent calls to _fsync()_, _fdatasync()_, or _sync()_) can strongly affect performance.
 
 #### The O_DSYNC and O_RSYNC flags
 
-The `O\_DSYNC` flag causes writes to be performed according to the requirements of synchronized I/O data integrity completion(like _fdatasync()_). This contrasts with `O\_SYNC`, which causes writes to be performed according to the requirements of synchronized I/O file integrity completion(like _fsync()_)
+The `O_DSYNC` flag causes writes to be performed according to the requirements of synchronized I/O data integrity completion(like _fdatasync()_). This contrasts with `O_SYNC`, which causes writes to be performed according to the requirements of synchronized I/O file integrity completion(like _fsync()_)
 
-The `O\_RSYNC` flag is specified in conjunction with either `O\_SYNC` or `O\_DSYNC`, and extends the write behaviors of these flags to read operations.
+The `O_RSYNC` flag is specified in conjunction with either `O_SYNC` or `O_DSYNC`, and extends the write behaviors of these flags to read operations.
 
 ### 13.4 Summary of I/O Buffering
 
@@ -721,7 +721,7 @@ Starting with kernel 2.4, Linux allows an application to bypass the buffer cache
 
 For most applications, using direct I/O can considerably degrade performance. This is because the kernel applies a number of optimization to improve the performance of I/O done via the buffer cache. All of these optimizations are lost when we use direct I/O. Direct I/O is intended only for applications with specialized I/O requirements.
 
-We can perform direct I/O either on an individual file or on a block device. To do this, we specify the `O\_DIRECT` flag when opening the file or device with _open()_.
+We can perform direct I/O either on an individual file or on a block device. To do this, we specify the `O_DIRECT` flag when opening the file or device with _open()_.
 
 #### Alignment restrictions for direct I/O
 
@@ -746,4 +746,103 @@ The _fdopen()_ function is the converse of _fileno()_. Given a file descriptor, 
 The _fdopen()_ function is especially useful for descriptors referring to files other than regular files. E.g., sockets and pipes.
 
 When using the _stdio_ library functions in conjunction with I/O system calls to perform I/O on disk files, we must keep buffering issues in mind.
+
+
+## 14: FILE SYSTEMS
+
+### 14.1 Device Special Files (Devices)
+
+A device special file corresponds to a device on the system. Within the kernel, each device type has a corresponding device driver, which handles all I/O requests for the device. A _device driver_ is a unit of kernel code that implements a set of operations that (normally) correspond to input and output actions on an associated piece of hardware. The API provided by device drivers is fixed, and includes operations corresponding to the system calls _open()_, _close()_, _read()_, _write()_, _mmap()_, and _ioctl()_. The consistent interface allows for _universality of I/O_.
+
+Two types of devices:
+
+* _Character devices_ handle data on a charactor-by-character basis. E.g., terminals and keyboards.
+* _Block devices_ handle data a block at a time. E.g., disks and tapes.
+
+Device files appear within the file system, usually under the /dev directory.
+
+#### Device IDs
+
+Each device file has a _major ID number_ and a _minor ID number_. The major ID identifies the general class of device, and is used by the kernel to look up the appropriate driver for this type of device. The minor ID uniquely identifies a particular device within a general class.
+
+### 14.2 Disks and Partitions
+
+#### Disk drives
+
+Information on the disk surface is located on a set of concentric circles called _tracks_. Tracks themselves are devided into a number of _sectors_, each of which consists of a series of _physical_ blocks, typically 512 bytes in size, represents the smallest unit of information that the drive can read or write.
+
+Reading and writing information on the disk takes significant time.
+
+#### Disk partitons
+
+Each partition is treated by the kernel as a separate device residing under the /dev directory.
+
+A disk partition may hold any type of information, but usually contains one of the following:
+
+* a _file system_ holding regular files and directories.
+* a _data area_ accessed as a raw-mode device, some database management system use this techniqure.
+* _swap area_ used by the kernel for memory management.
+
+### 14.3 File Systems
+
+A file system is an organized collection of regular files and directories. Linux supports a wide range variety of file systems.
+
+#### The _ext2_ file system
+
+The use of _ext2_ has declined in favor of various journaling file systems.
+
+#### File-system structure
+
+The basic unit for allocating space in a file system is a _logical_ block, which is some multiple of contiguous physical blocks on the disk device on which the file systme resided.
+
+A file system contains the followint parts:
+
+* _Boot block_: This is always the first block in a file system. It is not used by the file system, rather, it contains information used to boot the operating system. Although only one boot block is needed by the operating system, all file systems have a boot block.
+* _Superblock_: This is a single block, immediately following the boot block, which contains parameter information about the file system, including:
+  -  the size of the i-node table;
+  -  the size of logical blocks in this file system; and
+  -  the size of the file system in logical blocks.
+Different file systems residing on the same physical device can be of different types and sizes, and have different parameter settings.
+* _I-node table_: Each file or directory in the file system has a unique entry in the i-node table. This entry records various information about the file.
+* _Data blocks_: The great majority of space in a file system is used for the block of data that form the file and directories residing in the file system.
+
+### 14.4 I-nodes
+
+A file system's i-node table contains one i-node for each file residing in the file system. I-nodes are identified numerically by the sequential location in the i-node table. The information maintained in an i-node includes: file type, owner, group, access permissions, three timestamps, number of hard links to the file, size of the file in bytes and pointer to the data blocks of the file.
+
+#### I-nodes and data block pointers in _ext2_
+
+To locate the file data blocks, the kernel maintains a set of pointers in the i-node. Under _ext2_, each i-node contains 15 pointers. The first 12 point to the location in the file system of the first 12 blocks of the file. The next pointer is a _pointer to a block of pointers_. The 14th pointer is a _double indirect pointer_, and the 15th pointer is a _triple-indirect pointer_. See more details in the book.
+
+### 14.5 The Virtual File Sytems (VFS)
+
+### 14.6 Journaling File Systems
+
+The limitation of _ext2_: after a system crash, a file-system consistency check must be performed on reboot in order to ensure the integrity of the file system, which requires a lot of time for a large file system.
+
+Journaling file systems eliminate the need for lengthy file-system consistency checks after a system crash. A journaling file system records metadata updates to a log file before actual file updates performed. This means that in the event of a system crash, the log file can be replayed to quickly restore the file system to a consistent state.
+
+### 14.7 Single Directory Hierarchy and Mount Points
+
+On Linux, as on other UNIX systems, all files from all file systems reside under a single directory tree. Other file systems are _mounted_ under the root direcoty and appear as subtrees within the overall hierarchy.
+
+The location at which a file system is mounted in the directory tree is called its mount point.
+
+### 14.8 Mounting and Unmounting File Systems
+
+Read this section when necessary, now skipped.
+
+### 14.9 Advanced Mount Features
+
+Read this section when necessary, now skipped.
+
+### 14.10 A Virtual Memory File System: _tmpfs_
+
+Linux supports the notion of _virtual file systems_ that reside in memory. Faster, since no disk access is involved.
+
+The most sophiscated one is the _tmpfs_ file system. It uses not only RAM, but also the swap area.
+
+### 14.11 Obtaining Information About a File System: _statvfs()_
+
+The _statvfs()_ and _fstatvfs()_ library funtions obtain information about a mounted file system.
 
