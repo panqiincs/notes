@@ -846,3 +846,126 @@ The most sophiscated one is the _tmpfs_ file system. It uses not only RAM, but a
 
 The _statvfs()_ and _fstatvfs()_ library funtions obtain information about a mounted file system.
 
+
+## 15: FILE ATTRIBUTES
+
+### 15.1 Retrieving File Information: _stat()_
+
+The _stat()_, _lstat()_, and _fstat()_ system calls retrieve information about a file, mostly drawn from the file i-node.
+
+``` c
+#include <sys/stat.h>
+
+int stat(const char *pathname, struct stat *statbuf);
+int lstat(const char *pathname, struct stat *statbuf);
+int fstat(int fd, struct stat *statbuf);
+
+struct stat {
+    dev_t     st_dev;        /* IDs of device on which file resides */
+    ino_t     st_ino;        /* I-node number of file */
+    mode_t    st_mode;       /* File type and permissions */
+    nlink_t   st_nlink;      /* Number of (hard) links to file */
+    uid_t     st_uid;        /* User ID of file owner */
+    gid_t     st_gid;        /* Group ID of file owner */
+    dev_t     st_rdev;       /* IDs for device special file */
+    off_t     st_size;       /* Total file size (bytes) */
+    blksize_t st_blksize;    /* Optimal block size for I/O (bytes) */
+    blkcnt_t  st_blocks;     /* Number of (512B) blocks allocated */
+    time_t    st_atime;      /* Time of last file access */
+    time_t    st_mtime;      /* Time of last file modification */
+    time_t    st_ctime;      /* Time of last status change */
+}
+```
+
+_lstat()_ is similar to _stat()_, except that if the named file is a symbolic link, informaton about the link itself is returned, rather than the file to which the link points.
+
+The _stat()_ and _lstat()_ system calls don't require permissions on the file itself. However, execute(search) permission is required on all of the parent directories specified in _pathname_. The _fstat()_ system call always succeeds, if provided with a vailid file descriptor.
+
+The _stat_ structure clearly shows all information related to a file.
+
+### 15.2 File Timestamps
+
+Various system calls and library functions can change the timestamp fields of files. The _open()_ `O_NOATIME` flag can prevent updates to the last access time of a file.
+
+#### Changing File Timestamps with _utime()_ and _utimes()_
+
+#### Changing File Timestamps with _utimensat()_ and _futimens()_
+
+### 15.3 File Ownership
+
+Each file has an associated user ID (UID) and group ID (GID). These IDs determine which user and group the file belongs to.
+
+#### 15.3.1 Ownership of New Files
+
+When a new file is created, its user ID is taken from the effective user ID of the process. The group ID of the new file may be taken from either the effective group ID of the process or the Group ID of the parent directory. The latter possibility is useful for creating project directories in which all files belong to a particular group and are accessible to the members of that group.
+
+#### 15.3.2 Changint File Ownership: _chown()_, _fchown()_, and _lchown()_
+
+The _chown()_, _fchown()_, and _lchown()_ system calls change the owner and group of a file.
+
+Only a privileged process may use _chown()_ to change the user ID of a file. An unprivileged process can use _chown()_ to change the group ID of a file that it owns to any of the groups of which they are a member. A privileged process can change the group ID of a file to any value.
+
+If the owner or group of a file is changed, then the set-user-ID and set-group-ID permission bits are both turned off. This is a security precaution to ensure that a normal user could not enable the SUID and SGID bit on an executable file and then somehow make it owned by some privileged user or group, thereby gaining that privileged identity when executing the file.
+
+When changing the owner or group of a file, the set-group-ID permission bit is not turned off if the group-execute permission bit is already off or if we are changing the ownership of a directory.
+
+### 15.4 File permissions
+
+#### 15.4.1 Permissions on Regular Files
+
+The file permissions mask divides the world into three categories: _Owner_(also know as _user_), _Group_ and _Other_. Three permissions may be granted to each user category: _Read_, _Write_ and _Execute_. Note that, in order to execute a script, you must have read and execute permissions.
+
+#### 15.4.2 Permissions on Directories
+
+The three permissions are interpreted differently in the case of a directory:
+
+* _Read_: The contents of the directory may be listed.
+* _Write_: Files may be created in and removed from the directory. Note that it is not necessary to have any permission on a file itself in order to be able to delete it.
+* _Execute_: Files within the directory may be accessed. Execute permission on a directory is sometimes called _search_ permission.
+
+When accessing a file, execute premission is required on all of the directories listed in the pathname.
+
+Read permission on a directory only lets us view the list of filenames in the directory. We must have execute permission on the directory in order to access contents or the i-node information of files in the directory.
+
+Conversely, if we have execute permission on a directory, but not read permission, then we can access a file in the directory if we know its name, but we can't list the contents (i.e., the other filenames in) of the directory. This is a simple and frequrently used technique to control access to the contents of a public directory.
+
+To add or remove files in a directory, we need both execute and write permissions on the directory.
+
+#### 15.4.3 Permission-Checking Algorithm
+
+The checks against owner, group, and other permissions are done in order, and checking stops as soon as the applicable rule is found.
+
+#### 15.4.4 Checking File Accessibility: _access()_
+
+The _effective_ user and group IDs, as well as supplementary group IDs, are used to determine the permissions a process has when accessing a file. It is also possible for a program (e.g., a set-user-ID or set-group-ID program) to check file accessibility base on the _real_ user and group IDs of the process.
+
+The _access()_ system call checks the accessibility of the file specified in _pathname_ based on a process's real user and group IDs (and supplementory group IDs).
+
+**IMPORTANT**, from the man pages: this system call allows set-user-ID programs and capability-endowed programs to easily determine the invoking user's autority. In other words, _aceess()_ does not answer the question "can I rea/write/execute this file?" question. It answers a slightly different question: "(assuming I'm a setuid binary) can the user who invoked me read/write/execute this file?", which gives set-user-ID programs the possibility to prevent malicious users from causing them to read files which users shouldn't be able to read.
+
+#### 15.4.5 Set-User-ID, Set-Group-ID, and Sticky Bits
+
+On older UNIX implementations, the sticky bit was provided as a way of making commonly user programs run faster. Modern UNIX implementations have more sophisticated memory-management systems, which have rendered this use of the sticky permissions bit obsolete.
+
+In modern UNIX implementations, the sticky permissions bit serves differently. For directories, the sticky bit acts as the _restrited deletion_ flag. Setting the bit on a directory means that an unprivileged process can unlin and rename files in the directory only if it has write permission on the directory _and_ owns either the file or the directory. This makes it possible to create a own files in the directory but can't delete files owned by other users. The sticky permission bit is commonly set on the /tmp directory for this reason.
+
+A file's sticky permission bit is set via the _chmod_ command or via the _chmod()_ system call.
+
+#### 15.4.6 The Process File Mode Creation Mask: _umask()_
+
+The umask is a process attribute that specifies which permission bits should always be turned _off_ when new files or directories are created by the process.
+
+Often, a process just uses the umask it inherits from its parent shell, with the consequence that the user can control the umask of programs executed from the shell using the shell built-in command _umask_, which changes the umask of the shell process.
+
+The initialization files for most shells set the default umask to the octal value 022 (----w--w-). This value specifies that write permission should always be turned off for group and other.
+
+The _umask()_ system call changes a process's umask.
+
+#### 15.4.7 Changing File Permissions: _chmod()_ and _fchmod()_
+
+The _chmod()_ and _fchmod()_ system calls change the permission of a file.
+
+### 15.5 I-node Flags (ext2 Extended File Attributes)
+
+I-node flags controls the various behaviors of files and directories.
+
