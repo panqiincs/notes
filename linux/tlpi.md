@@ -969,3 +969,29 @@ The _chmod()_ and _fchmod()_ system calls change the permission of a file.
 
 I-node flags controls the various behaviors of files and directories.
 
+
+## 16: EXTENDED ATTRIBUTES
+
+### 16.1 Overview
+
+Extended attributes (EAs) allow arbitrary metadata, in the form of name-value pairs, to be associated with file i-nodes.
+
+#### EA namespaces
+
+EAs have names of the form _namespace.name_. The _namespace_ component serves to separate EAs into functionally distinct classes. The _name_ component uniquely identifies an EA within the given _namespace_.
+
+Four values are supported for _namespace: user, trusted, system, and security_.
+
+#### Creating and viewing EAs from the shell
+
+We can use _setfattr(1)_ and _getfattr(1)_ commands to set and view the EAs on a file.
+
+### 16.2 Extended Attribute Implementation Details
+
+### 16.3 System Calls for Manipulating Extended Attributes
+
+
+## 17: ACCESS CONTROL LISTS
+
+
+## 18: DIRECTORIES AND LINKS
