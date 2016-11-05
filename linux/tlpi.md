@@ -1131,3 +1131,126 @@ The _dirname()_ and _basename()_ functions break a pathname string into director
 
 ## 19: MONITORING FILE EVENTS
 
+
+## 20: SIGNALS: FUNDAMENTAL CONCEPTS
+
+### 20.1 Concepts and Overview
+
+A _signal_ is a notification to a process that an event has occurred. Signals are sometimes described as _software interrupts_.
+
+One process can send a signal to another process or itself. However, the usual source of many signals sent to a process is the kernel: 
+
+* A hardware exception
+* The user typed one of the terminal special charactors that generate signals
+* A software event occurred
+
+_Standard_ signals are used by the kernel to notify processes of events, on Linux, the standard signals are numbered from 1 to 31. The other type is _realtime_ signals.
+
+A signal is said to be _generated_ by some event. Once generated, a signal is later _delivered_ to a process, which then takes some action in response to the signal. Between the time it is generated and the time it is delivered, a signal is said to be _pending_. If you don't want to be interrupted by the delivery of a signal, add a signal to the process's _signal mask_--a set of signals whose delivery is currently _blocked_. If a signal is generated while it is blocked, it remains pending until it is later unblocked (removed from the signal mask).
+
+Default actions:
+
+* The signal is _ignored_
+* The process is _terminated_ (killed)
+* A _core dump file_ is generated, and the process is terminated. A core dump file contains an image of the virtual memory of the process, which can be loaded into a debugger in order to inspect the state of the process at the time that it terminated
+* The process is _stopped_--execution of the process is suspended
+* Execution of the process is _resumed_ after previous being stopped
+
+Instead of accepting the default for a particular signal, a program can change the action that occur when the signal is delivered, setting the _disposition_ of the signal:
+
+* The _default action_ should occur
+* The signal is _ignored_
+* A _signal handler_ is executed
+
+### 20.2 Signal Types and Default Actions
+
+### 20.3 Changing Signal Dispositions: _signal()_
+
+UNIX systems provide two ways of changing the disposition of a signal: _signal()_ and _sigaction()_. _Signal()_ may cause portable issues, _sigaction()_ is the preferred API for a signal handler.
+
+``` c
+#include <signal.h>
+
+void ( *signal(int sig, void (*handler)(int)) ) (int);
+```
+
+A more readable form:
+
+``` c
+typedef void (*sighandler_t)(int);
+
+sighandler_t signal(int sig, sighandler_t handler);
+```
+
+### 20.4 Introduction to Signal Handlers
+
+A _signal handler_ is a function that is called when specified signal is delivered to a process.
+
+### 20.5 Sending Signals: _kill()_
+
+One process can send a signal to another process using the _kill()_ system call, which is the analog of the _kill_ shell command.
+
+``` c
+#include <signal.h>
+
+int kill(pid_t pid, int sig);
+```
+
+### 20.6 Checking for the Existence of a Process
+
+Specifying the _sig_ argument as 0 can be used to check for the existence of a process.
+
+Various ways can be used to check whether a particular process is running.
+
+### 20.7 Other Ways of Sending Signals: _raise()_ and _killpg()_
+
+The _raise()_ function can send a signal to process itself.
+
+The _killpg()_ function sends a signal to all of the members of a process group.
+
+### 20.8 Displaying Signal Descriptions
+
+Each signal has an associated printable descriptions. The _strsignal()_ function can be used to get the description of signals.
+
+### 20.9 Signal Sets
+
+Multiple signals are represented using a data structure called a _signal set_.
+
+### 20.10 The Signal Mask (Blocking Signal Delivery)
+
+For each process, the kernel maintains a _signal mask_--a set of signals whose delivery to the process is currently blocked. If a signal that is blocked is sent to a process, delivery of that signal is delayed until it is unblocked by being removed from the process signal mask.
+
+The _sigprocmask()_ system call can be used at any time to explicitly add signals to, and remove signals from, the signal mask.
+
+Attempts to block `SIGKILL` and `SIGSTOP` are silently ignored.
+
+### 20.11 Pending Signals
+
+If a process receives a signal that is currently blocking, that signal is added to the process's set of pending signals. When and if the signal is later unblocked, it is then delivered to the process. To determine which signals are pending for a process, we can call _sigpending()_.
+
+### 20.12 Signals Are Not Queued
+
+The set of pending signals is only a mask; it indicates whether or not a signal has occurred, but not how many times it has occurred. In other word, if the same signal is generated multiple times while it is blocked, then it is recorded in the set of pending signals, and later delivered, just once.
+
+### 20.13 Changing Signal Dispositions: _sigaction()_
+
+The _sigaction()_ system call is an alternative to _signal()_ for setting the disposition of a signal, it is more complex and flexibale than _signal()_. In particular, _sigaction()_ allows us to retrieve the disposition of a signal without changing it, and to set various attributes controlling precisely what happens when a signal handler is invoked.
+
+``` c
+#include <signal.h>
+
+int sigaction(int sig, const struct sigaction *act, struct sigaction *oldact);
+
+struct sigaction {
+    void   (*sa_handler)(int);    /* Address of handler */
+    sigset_t sa_mask;             /* Signals blocked during handler
+                                     invocation */
+    int      sa_flags;            /* Flags controlling handler invocation */
+    void   (*sa_restorer)(void);  /* Not for application use */
+};
+```
+
+### 20.14 Waiting for a Signal: _pause()_
+
+Calling _pause()_ suspends execution of the process until the call is interrupted by a signal handler (or until an unhandled signal terminates the process).
+
