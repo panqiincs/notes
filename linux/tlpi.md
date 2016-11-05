@@ -1127,3 +1127,7 @@ The _realpath()_ library function dereferences all symbolic links and resolves a
 ### 18.14 Parsing Pathname Strings: _dirname()_ and _basename()_
 
 The _dirname()_ and _basename()_ functions break a pathname string into directory and filename parts.
+
+
+## 19: MONITORING FILE EVENTS
+
