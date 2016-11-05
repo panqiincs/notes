@@ -995,3 +995,135 @@ We can use _setfattr(1)_ and _getfattr(1)_ commands to set and view the EAs on a
 
 
 ## 18: DIRECTORIES AND LINKS
+
+### 18.1 Directories and (Hard) Links
+
+A _directory_ is stored in the file system in a similar way to a regular file. Two things distinguish a directory from a regular file:
+
+* A directory is marked with a different file type in its i-node entry.
+* A directory is a file with a special organization. Essentially, it is a table consisting of filenames and i-node numbers.
+
+The i-node table is numbered starting at 1, 0 in the i-node field of a directory entry indicates that the entry is unused. I-node 1 is used to record bad blocks in the file system. The root directory (/) of a file system is always stored in i-node entry 2, so that the kernel knows where to start when resolving a pathname.
+
+The i-node doesn't contain a filename, it is only the mapping within a directory list that defines the name of a file. This has a useful consequence: we can create multiple names--in the same or in different directories--each of which refers to the same i-node. These multiple names are know as _links_, or sometimes as _hard links_ to distinguish them from symbolic links.
+
+Files refer to the same i-node entry, refer to the same file, the link count will be greater than 1. If one of these filenames is removed, the other name, and the file itself, continue to exist. The i-node entry and data blocks for the file are removed only when the i-node's link count falls to 0--that is, when all of the names for the file have been removed.
+
+Hard links have two limitations, both of which can be circumvented by the use of symbolic links:
+
+* I-node numbers are unique only within a file system, a hard link must reside on the same file system as the file to which it refers.
+* A hard link can't be made to a directory, this prevents the creation of circular links.
+
+### 18.3 Symbolic (Soft) Links
+
+A _symbolic links_, also sometimes called a _soft link_, is a special file type whose data is the name of another file.
+
+Symbolic links don't have the same status as hard links. In particular, a symbolic link is not included in the link count of the file to which it refers. Therefore, if the filename to which the symbolic link refers is removed, the symbolic link itself continues to exist, even though it can no longer be dereferenced, we say it has become a _dangling link_. It is even possible to create a symbolic link to a filename that doesn't exist at the time the link is created.
+
+Since a symbolic link refers to a filename, rather than an i-node number, it can be used to link to a file in a different file system. Symbolic links also do not suffer the other limitation of hard links: we can create symbolic links to directories. It is possible to chain symbolic links.
+
+#### Interpretation of symbolic links by system calls
+
+Many system calls dereferences symbolic links and thus work on the file to which the link refers. Some system calls don't dereference symbolic links, but instead operate directly on the link itself.
+
+System calls: _stat()_ and _lstat()_.
+
+#### File permissions and ownership for symbolic links
+
+### 18.3 Creating and Removing (Hard) Links: _link()_ and _unlink()_
+
+The _link()_ and _unlink()_ system calls create and remove hard links.
+
+On Linux, the _link()_ system call does not dereference symbolic links.
+
+The _unlink()_ system call removes a link (deletes a filename) and, if that is the last link to the file, also removes the file itself. We can't use _unlink()_ to remove a directory, that task requires _rmdir()_ or _remove()_. The _unlink()_ system call does not dereference symbolic links.
+
+#### An open file is deleted only when all file descriptors are closed
+
+In addition to maintaining a link count for each i-node, the kernel also counts open file descriptions for the file. If the lask link to a file is removed and any processes hold open file descriptors referring to the file, the file won't actually be deleted until all of the descriptors are closed.
+
+### 18.4 Changing the Name of a File: _rename()_
+
+The _rename()_ system call can be used both to rename a file and to move it into another directory on the same file system.
+
+The _rename()_ call just manipulates directory entries, it does not remove file data. Renaming a file does not affect other hard links to the file, nor does it affect any processes that hold open descriptors for the file, since these descriptors refer to open file descriptions, which have no connection with filenames.
+
+### 18.5 Working with Symbolic Links: _symlink()_ and _readlink()_
+
+The _symlink()_ system call creates a new symbolic link. The _readlink()_ system call retieve the content of the link itself--that is, the pathname to which it refers.
+
+### 18.6 Creating and Removing Directories: _mkdir()_ and _rmdir()_
+
+The _mkdir()_ system call creates a new directory. The _rmdir()_ system call removes a directory. In order for _rmdir()_ to succeed, the directory must be empty.
+
+### 18.7 Removing a File or Directory: _remove()_
+
+The _remove()_ library function removes a file or an empty directory. If _pathname_ argument is a file, _remove()_ calls _unlink()_; if _pathname_ argument is a directory, _remove()_ calls _rmdir()_.
+
+### 18.8 Reading Directories: _opendir()_ and _readdir()_
+
+The library functions described in this section can be used to open a directory and retrieve the names of the files it contains one by one.
+
+``` c
+#include <dirent.h>
+
+DIR *opendir(const char *dirpath);
+DIR *fdopendir(int fd);
+strunct dirent *readdir(DIR *dirp);
+int closedir(DIR *dirp);
+
+struct dirent {
+    ino_t d_ino;     /* File i-node number */
+    char  d_name[];  /* Null-terminated name of file */
+};
+```
+
+The _opendir()_ function opens a directory and returns a handle that can be used to refer to the directory in later calls. The structure of type DIR is a so-called _directory stream_.
+
+The _fdopendir()_ function is like _opendir()_, except that the directory for which a stream is to be created is specified via the open file descriptor _fd_.
+
+The _readdir()_ function reads successive entries from a directory stream. Each call to _readdir()_ reads the next directory from the directory stream referred to by _dirp_ and returns a pointer to a statically allocated structure of type _dirent_. This structure is overwritten on each call to _readdir()_. 
+
+Further information about the file referred to by _d\_name_ can be obtained by calling _stat()_ on the pathname contructed using the _dirpath_ argument that was specified to _opendir()_ concatenated with the value returned in the _d\_name_ field.
+
+The _closedir()_ function closes the open directory stream referred to by _dirp_, freeing the resources used by the stream.
+
+#### Directory streams and file descriptors
+
+A directory stream has an associated file descriptor. The _dirfd()_ function returns the file descriptor associated with the directory stream.
+
+#### The _readdir\_r()_ funtion
+
+The _readdir\_r()_ function is a variation on _readdir()_. The key semantic difference between _readdir\_r()_ and _readdir()_ is that the former is reentrant, while the latter is not.
+
+### 18.9 File Tree Walking: _nftw()_
+
+The _nftw()_ function allows a program to recursively walk through an entire directory subtree performing some operation for each file in the subtree.
+
+### 18.10 The Current Working Directory of a Process
+
+A process's _current working directory_ defines the starting point for the resolution of relative pathnames referred to by the process. A new process inherits its current working directory from its parent.
+
+#### Retrieving the current working directory
+
+A process can retrieve its current working directory using _getcwd()_.
+
+#### Changing the current working directory
+
+The _chdir()_ system call changes the calling process's current working directory to the relative or absolute pathname.
+
+### 18.11 Operating Relative to a Directory File Descriptor
+
+### 18.12 Changing the Root Directory of a Process: _chroot()_
+
+Every process has a _root directory_, which is the point from which absolute pathnames are interpreted. By default, this is the real root directory of the file system.
+
+The _chroot()_ system call changes the process's root directory. Thereafter, all absolute pathnames are interpreted as starting from that location in the file system.
+
+### 18.13 Resolving a Pathname: _realpath()_
+
+The _realpath()_ library function dereferences all symbolic links and resolves all reference to `/.` and `/..` to produce a null-terminated string containing the corresponding absolute pathname.
+
+### 18.14 Parsing Pathname Strings: _dirname()_ and _basename()_
+
+The _dirname()_ and _basename()_ functions break a pathname string into directory and filename parts.
