@@ -274,6 +274,25 @@ The term _user stack_ is used to distinguish the stack from _kernel stack_. The 
 
 ### 6.8 Performing a Nonlocal Goto: _setjmp()_ and _longjmp()_
 
+The _setjmp()_ and _longjmp()_ functions are used to perform a _nonlocal goto_. The term _nonlocal_ refers to the fact that the target of the goto is a location somewhere outside the currently executing function.
+
+One restriction of C's goto is that it is not possible to jump out of the current function into another function.
+
+In some cases, coding would be simpler if we could jump from the middle of the nested function call back to one of the functions that called it. This is the functionality that _setjmp()_ and _longjmp()_ provide. They are useful for dealing with errors and interrupts encountered in a low-level subroutine of a program.
+
+``` c
+#include <setjmp.h>
+
+int setjmp(jmp_buf env);
+
+void longjmp(jmp_buf env, int val);
+```
+
+Calling _setjmp()_ establishes a target for later jump performed by _longjmp()_. _setjmp()_ saves the stack context/environment in _env_ for later use by _longjmp()_.
+
+#### Restrictions on the use of _setjmp()_
+
+
 
 ## 7: MEMORY ALLOCATION
 
