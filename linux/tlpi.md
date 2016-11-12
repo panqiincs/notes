@@ -1254,3 +1254,38 @@ struct sigaction {
 
 Calling _pause()_ suspends execution of the process until the call is interrupted by a signal handler (or until an unhandled signal terminates the process).
 
+
+## 21: SIGNALS: SIGNAL HANDLERS
+
+### 21.1 Designing Signal Handlers
+
+In general, it is preferable to write simple signal handlers. One important reason for this is to reduce the risk of creating race conditions.
+
+#### 21.1.1 Signals Are Not Queued (Revisited)
+
+#### 21.1.2 Reentrant and Async-Signal-Safe Functions
+
+##### Reentrant and nonreentrant functions
+
+A function is said to be _reentrant_ if it can safely be simultaneously executed by multiple threads of execution in the same process. In this context, "safe" means that the function achieves its expected result, regardless of the state of execution of any other thread of execution.
+
+A function may be _nonreentrant_ if it updates global or static data structures.(A function that employs only local variables is guaranteed to be reentrant.) 
+
+##### Standard async-signal-safe functions
+
+An _async-signal-safe_ function is one that the implementation guarantees to be safe when called from a signal handler. A function is async-signal-safe either because it is reentrant or because it is not interruptible by a signal handler.
+
+A function is unsafe only when invocation of a signal handler interrupts the execution of an unsafe function, and the handler itself also calls an unsafe function. In other words, when writing signal handlers, we have two choices:
+
+* Ensure that the code of the signal handler itself is reentrant and that it calls only async-signal-safe functions.
+* Block delivery of signals while executing code in the main program that calls unsafe functions or works with global data structure also updated by the signal handler.
+
+We must not call unsafe functions from within a signal handler.
+
+##### Use of _errno_ inside signal handlers
+
+#### 21.1.3 Global Variables and the _sig\_atomic\_t_ Data Type
+
+Reading and writing global variables may involve more than one machine language instruction, and a signal hanlder may interrupt the main program in the middle of such an instruction sequence. The integer data type, _sig\_atomic\_t_, guarantes reads and writes are atomic.
+
+### 21.2 Other methods of Terminating a Signal Handler
