@@ -1308,3 +1308,23 @@ We must not call unsafe functions from within a signal handler.
 Reading and writing global variables may involve more than one machine language instruction, and a signal hanlder may interrupt the main program in the middle of such an instruction sequence. The integer data type, _sig\_atomic\_t_, guarantes reads and writes are atomic.
 
 ### 21.2 Other methods of Terminating a Signal Handler
+
+#### Performing a Nonlocal Goto from a signal handler
+
+#### Terminating a Process Abnormally: _abort()_
+
+The _abort()_ function terminates the calling process and causes it to produce a core dump. It terminates the calling process by raising a `SIGABRT` signal.
+
+#### 21.3 Handling a Signal on an Alternate Stack: _sigaltstack()_
+
+An alternate signal stack is useful in cases when the standard stack has been exhausted by growing too large.
+
+#### 21.4 The `SA_SIGINFO` Flag
+
+Setting the `SA\_SIGINFO` flag when establishing a handler with _sigaction()_ allows the handler to obtain addtional information about a signal when it is delivered.
+
+#### 21.5 Interruption and Restarting of System Calls
+
+When a signal handler interrupts a blocked system call, the system call fails with the error `EINTR`.
+
+Specifying the `SA\_RESTART` flag when establishing the signal handler with _sigaction()_, system calls are automatically restarted by the kernel on the process's behalf.
