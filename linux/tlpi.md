@@ -1328,3 +1328,9 @@ Setting the `SA\_SIGINFO` flag when establishing a handler with _sigaction()_ al
 When a signal handler interrupts a blocked system call, the system call fails with the error `EINTR`.
 
 Specifying the `SA\_RESTART` flag when establishing the signal handler with _sigaction()_, system calls are automatically restarted by the kernel on the process's behalf.
+
+
+## 22: Signals: Advanced Features
+
+
+## 23: Timers and Sleeping
