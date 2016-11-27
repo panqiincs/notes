@@ -1330,13 +1330,13 @@ When a signal handler interrupts a blocked system call, the system call fails wi
 Specifying the `SA\_RESTART` flag when establishing the signal handler with _sigaction()_, system calls are automatically restarted by the kernel on the process's behalf.
 
 
-## 22: Signals: Advanced Features
+## 22: SIGNALS: ADVANCED FEATURES
 
 
-## 23: Timers and Sleeping
+## 23: TIMERS AND SLEEPING
 
 
-## 24: Process Creation
+## 24: PROCESS CREATION
 
 ### 24.1 Overview of _fork()_, _exit()_, _wait()_, and _execve()_
 
@@ -1379,3 +1379,31 @@ We can't assume a particular order of execution for the parent and child after a
 ### 24.5 Avoiding Race Conditions by Synchronizing With Signals
 
 After a _fork()_, if either process needs to wait for the other to complete an action, then the active process can send a signal after completing the action, the other process wait for the signal.
+
+
+## 25: PROCESS TERMINATION
+
+
+### 25.1 Terminating a Process: _\_exit()_ and _exit()_
+
+The following actions are performed by _exit()_:
+
+* Exit handlers are called, in reverse order of their registration
+* The _stdio_ stream buffers are flushed
+* The _\_exit()_ system call is invoked
+
+Performing an explicit _return n_ is generally equivalent to calling _exit(n)_.
+
+Performing a return without specifying a value, or falling off the end of the _main()_ function, also results in the caller of _main()_ invoking _exit()_, but with results that vary depending on the version of the C standard supported and the compilation options employed.
+
+### 25.2 Details of Process Termination
+
+### 25.3 Exit Handlers
+
+An exit handler is a programmer-supplied function that is registered at some point during the life of the process and is then automatically called during _normal_ process termination via _exit()_. Exit hanlders are not called if a program calls _\_exit()_ directly or if the process is terminated abnormally by a signal.
+
+A child process created via _fork()_ inherits a copy of its parent's exit handler registrations, when a process performs an _exec()_, all exit handler registrations are removed.
+
+### 25.4 Interactions Between _fork()_, _stdio_ Buffers, and _\_exit()_
+
+A very good example in the book.
