@@ -1407,3 +1407,38 @@ A child process created via _fork()_ inherits a copy of its parent's exit handle
 ### 25.4 Interactions Between _fork()_, _stdio_ Buffers, and _\_exit()_
 
 A very good example in the book.
+
+
+## 26: MONITORING CHILD PROCESSES
+
+### 26.1 Wating on a Child Process
+
+#### 26.1.1 The _wait()_ System Call
+
+#### 26.1.2 The _waitpid()_ System Call
+
+Limitations of _wait()_:
+
+* We can only wait for the next child that terminates, not a specific child
+* If no child has yet terminated, _wait()_ always blocks
+* We can find out only about children that has terminated
+
+The _waitpid()_ system call can solve these problems.
+
+#### 26.1.3 The Wait Status Value
+
+#### 26.1.4 Process Termination from a Signal Handler
+
+#### 26.1.5 The _waitid()_ System Call
+
+#### 26.1.6 The _wait3()_  and _wait4()_ System Calls
+
+### 26.2 Orphans and Zombies
+
+The orphaned child is adopted by _init_. 
+
+A zombie can't be killed by SIGKILL.
+
+### 26.3 The SIGCHILD Signal
+
+The SIGCHLD signal is sent to a parent process whenever one of its children terminates.
