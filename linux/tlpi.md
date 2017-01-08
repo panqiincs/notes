@@ -1442,3 +1442,13 @@ A zombie can't be killed by SIGKILL.
 ### 26.3 The SIGCHILD Signal
 
 The SIGCHLD signal is sent to a parent process whenever one of its children terminates.
+
+
+## 27: PROGRAM EXECUTION
+
+
+## 28: PROCESS CREATION AND PROGRAM EXECUTION IN MORE DETAILS
+
+
+
+
