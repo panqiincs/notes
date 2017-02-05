@@ -1450,5 +1450,59 @@ The SIGCHLD signal is sent to a parent process whenever one of its children term
 ## 28: PROCESS CREATION AND PROGRAM EXECUTION IN MORE DETAILS
 
 
+## 29: THREADS: INTRODUCTION
 
+### 29.1 Overview
+
+Difference between process and thread.
+
+### 29.2 Background Details of the Pthreads API
+
+#### Threads and _errno_
+
+In threaded programs, each thread has its own _errno_ value. 
+
+#### Return values from Pthreads functions
+
+#### Compiling Pthreads programs
+
+### 29.3 Thread Creation
+
+When a program is started, the resulting process consists of a single thread, called the _initial_ or _main_ thread. We can use `pthread\_create` function to create a new thread. 
+
+``` c
+#include <pthread.h>
+
+int pthread_create(pthread_t *thread, const pthread_attr_t *attr, 
+                   void *(*start)(void *), void *arg);
+```
+
+### 29.4 Thread Termination
+
+The execution of a thread terminates in one of the following ways:
+
+* The thread's start function performs a **return** specifying a return value for the thread.
+* The thread calls _pthread\_exit()_
+* The thread is canceled using _pthread\_cancel()_
+* Any of the threads calls _exit()_, or the main thread performs a **return** (in the _main()_ function), which causes all threads in the process to terminate immediately
+
+If the main thread calls _pthread\_exit()_ instead of calling _exit()_ or performing a **return**, then the other threads continue to execute.
+
+### 29.5 Thread IDs
+
+### 29.6 Joining with a Terminated Thread
+
+The _pthread\_join()_ function waits for the thread identified by _thread_ to terminate. If that thread has already terminated, _pthread\_join()_ returns immediately.
+
+If a thread is not detached, we must join with it using _pthread\_join()_. If we fail to do this, zombie thread.
+
+The task that _pthread\_join()_  performs for threads is similar to that performed by _waitpid()_ for processes.
+
+### 29.7 Detaching a Thread
+
+Detached threads, the system can automatically clean up and remove the thread when it terminates.
+
+### 29.8 Thread Attributes
+
+### 29.9 Threads Versus Processes
 
