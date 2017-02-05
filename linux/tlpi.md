@@ -1506,3 +1506,78 @@ Detached threads, the system can automatically clean up and remove the thread wh
 
 ### 29.9 Threads Versus Processes
 
+
+## 30 THREADS: THREAD SYNCHRONIZATION
+
+This chapter describe two tools that threads can use to synchronize their actions: mutexes and condition variables.
+
+### 30.1 Protecting Accecces to Shared Variables: Mutexes
+
+#### 30.1.1 Statically Allocated Mutexes
+
+```
+pthread_mutex_t mtx = PTHREAD_MUTEX_INITIALIZER
+```
+
+#### 30.1.2 Locking and Unlocking a Mutex
+
+#### 30.1.3 Performance of Mutexes
+
+#### 30.1.4 Mutex Deadlocks
+
+Deallock cause: each process successfully locks one mutex, and then tries to lock the mutex that the other thread has already locked.
+
+To avoid deadlock:
+* When threads can lock the same set of mutexes, they should always lock them in the same order.
+* Try, and the back off.
+
+#### 30.1.5 Dynamically Initializing a Mutex
+
+``` c
+#include <pthread.h>
+
+int pthread_mutex_init(pthread_mutex_t *mutex, const pthread_mutexattr_t *attr);
+
+int pthread_mutex_destroy(pthread_mutex_t *mutex);
+```
+
+#### 30.1.6 Mutex Attributes
+
+#### 30.1.7 Mutex Types
+
+### 30.2 Signaling Changes of State: Condition Variables
+
+A condition variable allows one thread to inform other threads about changes in the state of a shared variable and allows the other threads to wait for such notification.
+
+A condition variable is always used in conjunction with a mutex.
+
+### 30.2.1 Statically Allocated Condition Variables
+
+### 30.2.2 Signaling and Waiting on Condition Variables
+
+``` c
+#include <pthread.h>
+
+int pthread_cond_signal(pthread_cond_t *cond);
+int pthread_cond_broadcast(pthread_cond_t *cond);
+int pthread_cond_wait(pthread_cond_t *cond);
+```
+
+A condition variable always has an associated mutex, both of these objects are passed as arguments to _pthread\_cond\_wait()_.
+
+### 30.2.3 Testing a Condition Variable's Predicate
+
+Use _while_ instead of _if_.
+
+### 30.2.4 Example Program: Joining Any Terminated Thread
+
+### 30.2.5 Dynamically Allocated Condition Variables
+
+``` c
+#include <pthread.h>
+
+int pthread_cond_init(pthread_cond_t *cond, const pthread_condattr_t *attr);
+int pthread_cond_destroy(pthread_cond_t *cond);
+```
+
+
