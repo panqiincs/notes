@@ -1581,3 +1581,34 @@ int pthread_cond_destroy(pthread_cond_t *cond);
 ```
 
 
+## 31 THREADS: THREAD SAFETY AND PER-THREAD STORAGE
+
+
+## 32 THREADS: THREAD CANCELLATION
+
+Cancel a thread: send it a request asking it to terminate now.
+
+### 32.1 Canceling a Thread
+
+Having made the cancellation request, _pthread\_cancel()_ returns immediately. Precisely what happens to the target thread, and when it happens, depends on that thread's cancellation state and type.
+
+### 32.2 Cancellation State and Type
+
+How it responds to a cancellation request.
+
+### 32.3 Cancellation Points
+
+A cancellation point is a call to one of a set of functions defined by the implementation.
+
+When a canceld thread is joined, the value returned in the second argument to _pthread\_join()_ is a special thread return value: `PTHREAD\_CANCEL`
+
+### 32.4 Testing for Thread Cancellation
+
+### 32.5 Cleanup Handlers
+
+### 32.6 Asynchronous Cancelability
+
+When a thread is made asynchronously cancelable (cancelability type PTHREAD\_CANCEL\_ASYNCHRONOUS); delivery of a cancellation is not held off until the thread next reaches a cancellation point.
+
+As a general principle, an asynchronously cancelable thread can't allocate any resources or acquire any mutexes, semaphores, or locks.
+
