@@ -1612,3 +1612,47 @@ When a thread is made asynchronously cancelable (cancelability type PTHREAD\_CAN
 
 As a general principle, an asynchronously cancelable thread can't allocate any resources or acquire any mutexes, semaphores, or locks.
 
+
+## 33 THREADS: FURTHER DETAILS
+
+### 33.1 Thread Stacks
+
+Each thread has its own stack whose size is **fixed** when the thread is created.
+### 33.2 Threads and Signals
+
+The difference between the signals and thread models mean that combining signals and threads is complex, and should be avoided whenever possible.
+
+#### 33.2.1 How the UNIX Signal Model Maps to Threads
+
+#### 33.2.2 Manipulating the Thread Signal Mask
+
+#### 33.2.3 Sending a Signal to a Thread
+
+#### 33.2.4 Dealing with Asynchronous Signals Sanely
+
+### 33.3 Threads and Process Control
+
+**Threads and _exec()_**
+
+When any thread calls one of the _exec()_ functions, the calling program is completely replaced.
+
+**Threads and _fork()_**
+
+When a multithreaded process calls _fork()_, only the calling thread is replicated in the child process.
+
+Causes a lot of problems, so the usual recommendation is that the only use of _fork()_ in a multithreaded process should be one that is followed by an immediate _exec()_.
+
+**Threads and _exit()_**
+
+If any thread calls _exit()_ or, equivalently, the main thread does a **return**, all threads immediately vanish; no thread-specific data destructors or cleanup handlers are executed.
+
+
+### 33.4 Thread Implementation Models
+
+User-level threads, kernel-level threads and two-level model.
+
+### 33.5 Linux Implementations of POSIX Threads
+
+### 33.6 Advanced Features of the Pthreads API
+
+
