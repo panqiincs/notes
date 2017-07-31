@@ -16,4 +16,4 @@ It is similar to global mode. Now you can finish installing SwitchyOmega.
 
 ## Configure SwitchyOmega
 
-Please see [this page](https://ii-i.org/archives/289). Then you can enjoy the auto switchy mode. Enjoy fucking GFW with shadowsocks and chromium.
+Please see [this page](https://github.com/FelisCatus/SwitchyOmega/wiki/GFWList). Then you can enjoy the auto switchy mode. Enjoy fucking GFW with shadowsocks and chromium.
