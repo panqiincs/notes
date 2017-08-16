@@ -1,6 +1,6 @@
 ## How to install chrome in OpenSUSE Leap
 
-### Steps
+### Installation steps
 
 Add repository:
 
@@ -37,6 +37,20 @@ We can install it now:
 ```
 $ sudo zypper in google-chrome-stable
 ```
+
+### Disable kwallet popups
+
+When you startup chrome in KDE, it always appears a kwallet popup, asking you to input a password.
+
+Edit `/usr/bin/google-chrome-stable`, add `"--password-store=basic"` option in the bottom, it looks like:
+
+```bash
+else
+  exec -a "$0" "$HERE/chrome"  "$@" "--password-store=basic"
+fi
+```
+
+Reboot and try, the popup will never occur again.
 
 ### Reference
 
