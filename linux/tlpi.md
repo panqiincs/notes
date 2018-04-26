@@ -1776,4 +1776,40 @@ Analogy with the postal system.
 ## 57 SOCKETS: UNIX DOMAIN
 
 
+## 58 SOCKETS: FUNDAMENTALS OF TCP/IP NETWORKS
+
+
+### 58.1 Internets
+
+### 58.2 Networking Protocols and Layers
+
+### 58.3 The Data-Link Layer
+
+### 58.4 The Network Layer: IP
+
+### 58.5 IP Addresses
+
+### 58.6 The Transport Layer
+
+#### 58.6.1 Port numbers
+
+Port numbers are a method of differentiating the applications on a host.
+
+#### 58.6.2 User Datagram Protocal(UDP)
+
+UDP is connectionless, unreliable.
+
+#### 58.6.3 Transmission Control Protocal(TCP)
+
+TCP is reliable, connection-oriented, bidirectional, byte-stream communication channel between two endpoints.
+
+* Connection establishment
+* Packaging of data in segments
+* Acknowledgements, retransmissions, and timeouts
+* Sequencing
+* Flow control
+* Congestion control
+
+### 58.7 Requests for Comments(RFCs)
+
 
