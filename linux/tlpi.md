@@ -1700,3 +1700,76 @@ User-level threads, kernel-level threads and two-level model.
 
 ## 55 FILE LOCKING
 
+
+## 56 SOCKETS: INTRODUCTION
+
+### 56.1 Overview
+
+Supported _communication domains_:
+
+* _UNIX_(AF\_UNIX): on the same host
+* _IPv4_(AF\_INET): on connected hosts via an IPv4 protocal
+* _IPv6_(AF\_INET6): on connected hosts via an IPv6 protocal
+
+Supported _types_: stream and datagram.
+
+_Stream sockets_(SOCK\_STREAM) provide a reliable, bidirectional, byte-stream(no concept of message boundaries) communication channel.   --- TCP
+
+_Datagram sockets_(SOCK\_DGRAM) allow data to be exchanged in the form of messages called _datagrams_. Message boundaries are preserved, but data transmission is not reliable. A _connectionless_ socket.   --- UDP
+
+Socket system calls: 
+
+* The _socket()_ system call creates a new socket.
+* The _bind()_ system call binds a socket to an address.
+* The _listen()_ system call allows a stream socket to accept incoming connections from other sockets.
+* The _accept()_ system call accepts a connection from a peer application on a listening stream socket, and optionally returns the address of the peer socket.
+* The _connect()_ system call establishes a connection with annother socket.
+
+Socket I/O can be performed using the conventional _read()_ and _write()_ system calls, or using a range of socket-specific system calls. By default, these system calls block if the I/O operation can't be comppleted immediately. Noblocking I/O is also possible.
+
+### 56.2 Creating a Socket: _socket()_
+
+Creates a new socket.
+
+``` c
+#include <sys/socket.h>
+
+int socket(int domain, int type, int protocal);
+```
+
+On success, _socket()_ returns a file descriptor used to refer to the newly created socket in later system calls.
+
+### 56.3 Binding a Socket to an Address: _bind()_
+
+Binds a socket to an address.
+
+``` c
+#include <sys/socket.h>
+
+int bind(int sockfd, const struct sockaddr *addr, socklen_t addrlen);
+```
+
+Typically, we bind a server's socket to a well-known address.
+
+### 56.4 Generic Socket Address Structures: _struct sockaddr_
+
+The only purpose of this type is to cast the various domain-specific address structures to a single type for use as arguments in the socket system calls.
+
+``` C
+struct sockaddr {
+    sa_family_t sa_family;      /* Address family (AF\_* constant) */
+    char        sa_data[14];    /* Socket address (size varies according
+                                   to socket domain) */
+};
+
+```
+
+### 56.5 Stream Sockets
+
+Analogy with the telephone system.
+
+### 56.6 Datagram Sockets
+
+Analogy with the postal system.
+
+
