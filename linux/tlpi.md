@@ -1873,5 +1873,34 @@ The _getaddrinfo()_ function allow us to eliminate IPv4-versus-IPv6 dependencies
 ### 59.14 UNIX Versus Internet Domain Sockets
 
 
+## 60 SOCKETS: SERVER DESIGN
+
+### 60.1 Iterative and Concurrent Servers
+
+* _Interative_: handles one client at a time, processing that client's requests completely, before proceeding to the next client.
+* _Concurrent_: designed to handle multiple clients simutaneously.
+
+### 60.2 An Iterative UDP _echo_ Server
+
+### 60.3 A Concurrent TCP _echo_ Server
+
+### 60.4 Other Concurrent Server Designs
+
+For very high-load servers, the cost of creating a new child or thread for each client imposes a significant burden on the server.
+
+#### Preforked and prethreaded servers
+
+Use _server pool_, each child in the server pool handles one client at a time, but instead of terminating after handling the client, the child fetches the next client to be serviced and services it, and so on.
+
+#### Handling multiple clients from a single process
+
+Employ one of the I/O models (eg, _epoll_) that allow a single process to simutaneously monitor multiple file descriptors for I/O events.
+
+#### Using server farms
+
+### 60.5 The _inetd_ (Internet Superserver) Daemon
+
+Using _inetd_ allows us to decrease system load by minimizing the number of network server processes on the system, and also simplifies the programming of server processes.
+
 
 
