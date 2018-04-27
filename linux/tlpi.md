@@ -1813,3 +1813,65 @@ TCP is reliable, connection-oriented, bidirectional, byte-stream communication c
 ### 58.7 Requests for Comments(RFCs)
 
 
+## 59 SOCKETS: INTERNET DOMAINS
+
+### 59.1 Internet Domain Sockets
+
+### 59.2 Network Byte Order
+
+Big-endian and Little-endian. Following functions converts integer in either direction between host and network order: _htons()_, _htonl()_, _ntohs()_, and _ntohl()_.
+
+### 59.3 Data Representation
+
+The _readLine()_ function implementation.
+
+### 59.4 Internet Socket Addresses
+
+#### IPv4 socket addresses: _struct sockaddr\_in_
+
+#### IPv6 socket addresses: _struct sockaddr\_in6_
+
+### 59.5 Overview of Host and Service Conversion Functions
+
+A _hostname_ is the symbolic identifier for a system in a network. A _service name_ is the symbolic representation of a port number.
+
+Modern APIs:   _inet\_ntop()_, _inet\_pton()_, _getaddrinfo()_, _getnameinfo()_.
+Obsolete APIs: _inet\_aton()_, _inet\_ntoa()_, _gethostbyname()_, _getservbyname()_.
+
+### 59.6 The _inet\_pton()_ and _inet\_ntop()_ Functions
+
+The _p_ stands for "presentation", while the _n_ stands for "network".
+
+### 59.7 Client-Server Example (Datagram Sockets)
+
+### 59.8 Domain Name System (DNS)
+
+Before DNS, mappings between hostnames and IP addresses were define in a local file, `/etc/hosts`.
+
+### 59.9 The /etc/services Files
+
+Port numbers and service names are recorded in the file `/etc/services`.
+
+### 59.10 Protocal-Independent Host and Service Conversion
+
+The _getaddrinfo()_ function allow us to eliminate IPv4-versus-IPv6 dependencies from our programs.
+
+#### 59.10.1 The _getaddrinfo()_ Function
+
+#### 59.10.2 Freeing _addrinfo_ Lists: _freeaddrinfo()_
+
+#### 59.10.3 Diagnosing Errors: _gai\_strerror()_
+
+#### 59.10.4 The _getnameinfo()_ Function
+
+### 59.11 Client-Server Example (Stream Sockets)
+
+### 59.12 An Internet Domain Sockets Library
+
+### 59.13 Obsolete APIs for Host and Service Conversions
+
+### 59.14 UNIX Versus Internet Domain Sockets
+
+
+
+
