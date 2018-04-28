@@ -15,7 +15,7 @@ $ sudo zypper install proxychains
 Open file `/etc/proxychains.conf`, modify the last line under `[ProxyList]` to:
 
 ```
-sock5 127.0.0.1 1080
+socks5 127.0.0.1 1080
 ```
 
 ## Step 3: How to use
