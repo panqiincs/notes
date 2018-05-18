@@ -1,5 +1,3 @@
-# Git
-
 ### 1: Git does not tell how many commits ahead of origin
 
 In Git version 1.8 or later, make sure you are on the local branch and then run:
@@ -17,4 +15,10 @@ Very great:
 ```bash
 git config --global alias.lg "log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit"
 ```
+### ssh login without password
 
+Install `sshpass`, then run:
+
+```bash
+$ sshpass -p your_password ssh user@hostname
+```
