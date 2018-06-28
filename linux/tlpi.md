@@ -1676,7 +1676,31 @@ User-level threads, kernel-level threads and two-level model.
 
 ## 43 INTERPROCESS COMMUNICATION OVERVIEW
 
+### 43.1 A taxonomy of IPC Facilities
+
+UNIX communication and synchronization facilities: communication, sychronization and signal.
+
+POSIX IPC facilities were designed as an improvement on the older System V IPC facilities.
+
+### 43.2 Communication Facilities
+
+Data-transfer facilites: cause data transfers between user memory and kernel memory. 
+
+Shared memory: doesn't require system calls or data transfer between user memory and kernel memory, fast.
+
+### 43.3 Sychronization Facilities
+
+Facilities: semaphores, file locks, mutexes and condition variables.
+
+### 43.4 Comparing IPC Facilities
+
+The portability of System V IPC is better than POSIX IPC.
+
+...
+
+
 ## 44 PIPES AND FIFOS
+
 
 ## 45 INTRODUCTION TO SYSTEM V IPC
 
