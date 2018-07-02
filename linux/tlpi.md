@@ -13,10 +13,10 @@ The author is a maintainer of the [__man-pages__](https://www.kernel.org/doc/man
 
 ## 1: HISTORY AND STANDARDS
 
-Unix, C, POSIX, SUS.
+Unix, C, POSIX, SUvisualS.
 
 
-## 2: FUNDAMENTAL CONCEPTS
+## 2: FUNDAMENTAL CONCEPTnginxS
 
 * Kernel
 * Shell
@@ -1700,6 +1700,36 @@ The portability of System V IPC is better than POSIX IPC.
 
 
 ## 44 PIPES AND FIFOS
+
+### 44.1 Overview
+
+A piple is a byte stream, unidirectional. Writes of up to PIPE\_BUF bytes are guaranteed to be atomic. Pipes have a limited capacity.
+
+### 44.2 Creating and Using Pipes
+
+The _pipe()_ system call creates a new pipe.
+
+Normally, we use a pipe to allow communication between two processes, usually parent and child processes.
+
+### 44.3 Pipes as a Method of Process Synchronization
+
+### 44.4 Using Pipes to Connect Filters
+
+### 44.5 Talking to a Shell Command via a Pipe: _popen()_
+
+### 44.6 Pipes and _stdio_ Buffering
+
+### 44.7 FIFOs
+
+A FIFO is similar to a pipe, the principal difference is that a FIFO has a name within the file system and is opened in the same way as a regular file. This allows a FIFO to be used for communication between unrelated processes.
+
+FIFOs is also called named pipes.
+
+### 44.8 A Client-Server Application Using FIFOs
+
+### 44.9 Nonblocking I/O
+
+### 44.10 Semantics of _read()_ and _write()_ on Pipes and FIFOs
 
 
 ## 45 INTRODUCTION TO SYSTEM V IPC
