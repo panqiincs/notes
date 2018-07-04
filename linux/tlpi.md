@@ -1958,3 +1958,56 @@ Using _inetd_ allows us to decrease system load by minimizing the number of netw
 
 
 
+## 61 SOCKETS: ADVANCED TOPICS
+
+
+## 62 TERMINALS
+
+
+## 63 ALTERNATIVE I/O MODELS
+
+Three conventional file I/O model:
+
+* I/O multiplexing (the _select()_ and _poll()_ system calls)
+* signal-driven I/O
+* the Linux-specific _epoll_ API
+
+### 63.1 Overview
+
+These three methods can monitor one or several file descriptors simultaneously to see if they are _ready_ to perform I/O (without blocking). These techniques don't perform I/O, they merely tell us that a file descriptor is ready. Some other system call must then be used to actually perform the I/O.
+
+_Level-Triggered notification_: A file descriptor is considered to be ready if it is possible to perform an I/O system call without blocking.
+
+_Edge-triggered notification_: Notification is provided if there is I/O activity on a file descriptor since it was last monitored.
+
+Nonblocking I/O is often used in conjunction with the I/O models.
+
+### 63.2 I/O Multiplexing
+
+I/O multiplexing allows us to simultaneously monitor multiple file descriptors to see if I/O is possible on any of them. We can use _select()_ and _poll()_ to monitor file descriptors for regular files, terminals, pseudoterminals, FIFOs, sockets, and some types of character devices.
+
+The _select()_ system call blocks until one or more of a set of file descriptors becomes ready.
+
+The _poll()_ system call performs a similar task to _select()_. The major difference between the two system calls lies in how we specify the file descriptor to be monitored. With _select()_, we provide three sets, each marked to indicate the file descriptors of interest. With _poll()_, we provide a list of file descripotrs, each marked with the set of events of interest.
+
+A file descriptor(with O\_NONBLOCK clear) is considered to be ready if a call to an I/O function would not block, _regardless of whether the function would actually transfer data._ Thus, _select()_ and _poll()_ tell us whether an I/O operation would not block, rather than whether it would successfully transfer data.
+
+The CPU time required by _select()_ and _poll()_ increases with the number of file descriptors being monitored.
+
+The poor scaling performance of them stems from a simple limitation of these APIs: typically, a program makes repeated calls to monitor the same set of file descriptors; however the kernel doesn't rememver the list of file descriptors to be monitored between successive calls.
+
+Signal-driven I/O and _epoll_, are both mechanisms that allow the kernel to record a persistent list of file descriptors in which a process is interested. This yields solutions that scale according to the number of I/O events that occur, rather than according to the number of file descriptors being monitored. Consequently, signal-driven I/O and _epoll_ provide superior performance when monitoring large number of file descriptors.
+
+### 63.3 Signal-Driven I/O
+
+With signal-driven I/O, a process requests that the kernel send it a signal when I/O is possible on a file descriptor. The process can then perform any other activity until I/O is possible, at which time the signal is delivered to the process.
+
+### 63.4 The _epoll_ API
+
+The primary advantages of _epoll_:
+
+1. The performance of _epoll_ scales much better than _select()_ and _poll()_ when monitoring large numbers of file descriptors.
+2. The _epoll_ API permits either level-triggered or edge-triggered notification.
+
+### 63.5 Waiting on Signals and File Descriptors
+
