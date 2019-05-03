@@ -63,12 +63,15 @@ sudo pacman -S ttf-wps-fonts
 sudo pacman -S adobe-source-han-sans-cn-fonts adobe-source-han-serif-cn-fonts
 ```
 
-## git
+## Git
 
 Install and config:
 
 ```bash
-sudo packman -S git
+sudo pacman -S git
+sudo pacman -S bash-completion
+
+git config --global alias.lg "log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit"
 git config --global user.name "John Doe"
 git config --global user.email johndoe@example.com
 ```
@@ -89,6 +92,7 @@ sudo pacman -S vim visual-studio-code-bin
 sudo pacman -S clang gdb make cmake
 sudo pacman -S octave
 sudo pacman -S stellarium google-earth imagemagick screenfetch
+sudo pacman -S sshpass
 ```
 
 ## pacman commands
