@@ -57,10 +57,16 @@ sudo pacman -S wps-office
 sudo pacman -S ttf-wps-fonts
 ```
 
+How to change language:
+
+1. Create a new document file
+2. Find the A icon at the bottom-up
+3. Uncheck follow system locale, then you can choose language
+
 ## Install Chinese fonts
 
 ```bash
-sudo pacman -S adobe-source-han-sans-cn-fonts adobe-source-han-serif-cn-fonts
+sudo pacman -S noto-fonts-cjk
 ```
 
 ## Git
@@ -90,9 +96,8 @@ sudo pacman -S texstudio
 ```
 sudo pacman -S vim visual-studio-code-bin
 sudo pacman -S clang gdb make cmake
+sudo pacman -S stellarium google-earth imagemagick
 sudo pacman -S octave
-sudo pacman -S stellarium google-earth imagemagick screenfetch
-sudo pacman -S sshpass
 ```
 
 ## pacman commands
@@ -106,3 +111,10 @@ $ pacman -R <软件包名>  # 卸载软件
 $ pacman -Su # 升级软件
 $ pacman -Sc # 删除包缓存， -Scc 表示删除所有
 ```
+
+## KDE
+
+Config **double-click** to open files. System Settings -> Desktop Behavior -> Workspace
+
+Ask for confirmation when deleting files. Dolphin Preferences - General - Confirmations
+
